@@ -167,7 +167,7 @@
       display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 24px; margin-bottom: 48px;
     }
-    .producto-card { cursor: pointer; }
+    .producto-card { cursor: pointer; display: block; }
     .producto-img-wrap { position: relative; overflow: hidden; border-radius: 16px; background: var(--nude); }
     .producto-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; transition: transform .5s; }
     .producto-card:hover .producto-img { transform: scale(1.04); }
@@ -402,12 +402,12 @@
 
         <!-- PRODUCTOS -->
         <div class="productos-grid">
-          <div class="producto-card">
+          <a href="producto-convertible.html" class="producto-card" style="text-decoration:none;color:inherit;">
             <div class="producto-img-wrap">
-              <!-- <img src="images/prod-convertible.jpg" class="producto-img" alt="El convertible"> -->
+              <!-- <img src="images/prod-01-a.jpg" class="producto-img" alt="El convertible"> -->
               <div class="producto-ph">
                 <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
-                <p>images/prod-01.jpg</p>
+                <p>images/prod-01-a.jpg</p>
               </div>
               <span class="prod-badge">Pronto</span>
             </div>
@@ -416,12 +416,12 @@
               <h3 class="prod-name">El convertible</h3>
               <p class="prod-price tbd">Precio por confirmar</p>
             </div>
-          </div>
-          <div class="producto-card">
+          </a>
+          <a href="producto-acordeon.html" class="producto-card" style="text-decoration:none;color:inherit;">
             <div class="producto-img-wrap">
               <div class="producto-ph">
                 <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
-                <p>images/prod-02.jpg</p>
+                <p>images/prod-02-a.jpg</p>
               </div>
               <span class="prod-badge">Pronto</span>
             </div>
@@ -430,12 +430,12 @@
               <h3 class="prod-name">El acordeón</h3>
               <p class="prod-price tbd">Precio por confirmar</p>
             </div>
-          </div>
-          <div class="producto-card">
+          </a>
+          <a href="producto-amarre.html" class="producto-card" style="text-decoration:none;color:inherit;">
             <div class="producto-img-wrap">
               <div class="producto-ph">
                 <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
-                <p>images/prod-03.jpg</p>
+                <p>images/prod-03-a.jpg</p>
               </div>
               <span class="prod-badge">Pronto</span>
             </div>
@@ -444,7 +444,21 @@
               <h3 class="prod-name">La amarre</h3>
               <p class="prod-price tbd">Precio por confirmar</p>
             </div>
-          </div>
+          </a>
+          <a href="producto-04.html" class="producto-card" style="text-decoration:none;color:inherit;">
+            <div class="producto-img-wrap">
+              <div class="producto-ph">
+                <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
+                <p>images/prod-04-a.jpg</p>
+              </div>
+              <span class="prod-badge">Pronto</span>
+            </div>
+            <div class="producto-info">
+              <p class="prod-sub">Próximamente</p>
+              <h3 class="prod-name">Por definir</h3>
+              <p class="prod-price tbd">Precio por confirmar</p>
+            </div>
+          </a>
         </div>
 
         <div class="coming-box">
