@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revla — Ropa que obedece</title>
+  <meta name="description" content="Ropa que se adapta a tu cuerpo, tu estilo y tu proceso. Modulable, transitable, tuya.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --lila: #a183ff;
+      --lila-soft: #b9a2ff;
+      --lila-pale: #e0d6ff;
+      --lila-ghost: #f2eeff;
+      --nude: #f5efe8;
+      --nude2: #ede4d9;
+      --black: #1a1718;
+      --gray: #6b6570;
+      --white: #ffffff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; background: #fff; color: var(--black); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      padding: 18px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(161,131,255,0.15);
+      transition: box-shadow .3s;
+    }
+    nav.scrolled { box-shadow: 0 2px 24px rgba(161,131,255,0.12); }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px; font-weight: 700; letter-spacing: 0.04em;
+      text-decoration: none; color: var(--black);
+    }
+    .nav-logo em { font-style: italic; color: var(--lila); }
+    nav ul { list-style: none; display: flex; gap: 32px; align-items: center; }
+    nav ul a {
+      text-decoration: none; color: var(--gray);
+      font-size: 14px; font-weight: 500; letter-spacing: 0.3px;
+      transition: color .2s;
+    }
+    nav ul a:hover, nav ul a.active { color: var(--lila); }
+    .nav-cta {
+      background: var(--lila) !important; color: #fff !important;
+      padding: 10px 22px; border-radius: 100px;
+      font-weight: 600 !important;
+      transition: transform .2s, box-shadow .2s !important;
+    }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(161,131,255,.45) !important; }
+    .nav-mobile-bar { display: none; align-items: center; gap: 10px; }
+    .nav-menu-btn { background: none; border: 1.5px solid rgba(0,0,0,.12); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 18px; color: #333; }
+
+    /* ── HERO ── */
+    #inicio {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      padding-top: 72px;
+      overflow: hidden;
+    }
+    .hero-left {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 80px 60px 80px 60px;
+      background: var(--lila-ghost);
+      position: relative;
+    }
+    .hero-left::after {
+      content: '';
+      position: absolute; right: -40px; top: 0; bottom: 0; width: 80px;
+      background: var(--lila-ghost);
+      clip-path: polygon(0 0, 0 100%, 100% 100%);
+      z-index: 1;
+    }
+    .hero-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--lila);
+      margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block; width: 32px; height: 2px; background: var(--lila);
+    }
+    .hero-left h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(48px, 5.5vw, 80px);
+      line-height: 1.05; font-weight: 700; color: var(--black);
+      margin-bottom: 12px;
+    }
+    .hero-left h1 em { font-style: italic; color: var(--lila); }
+    .hero-tagline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(18px, 2vw, 26px);
+      font-style: italic; color: var(--gray);
+      margin-bottom: 32px; line-height: 1.5;
+    }
+    .hero-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 36px; }
+    .badge-lila {
+      padding: 7px 16px; border-radius: 100px;
+      font-size: 13px; font-weight: 600;
+      background: rgba(161,131,255,.12); color: var(--lila);
+      border: 1.5px solid rgba(161,131,255,.3);
+    }
+    .badge-nude {
+      padding: 7px 16px; border-radius: 100px;
+      font-size: 13px; font-weight: 600;
+      background: var(--nude2); color: #7a6a5a;
+      border: 1.5px solid rgba(0,0,0,.06);
+    }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+    .btn-primary {
+      padding: 14px 32px; border-radius: 100px;
+      background: var(--lila); color: white;
+      font-weight: 700; font-size: 15px; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(161,131,255,.4);
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(161,131,255,.55); }
+    .btn-secondary {
+      padding: 14px 32px; border-radius: 100px;
+      border: 2px solid var(--black); color: var(--black);
+      font-weight: 600; font-size: 15px; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: background .2s, color .2s;
+    }
+    .btn-secondary:hover { background: var(--black); color: white; }
+
+    .hero-right {
+      position: relative; background: var(--nude);
+      display: flex; align-items: stretch;
+    }
+    .hero-photo {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      min-height: 600px;
+    }
+    .hero-photo-placeholder {
+      width: 100%; min-height: 600px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; background: var(--nude);
+      border-left: 3px dashed var(--lila-pale);
+    }
+    .hero-photo-placeholder .ph-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--lila-pale); display: flex; align-items: center; justify-content: center;
+    }
+    .hero-photo-placeholder p { font-size: 14px; color: var(--gray); font-style: italic; }
+    .hero-float-card {
+      position: absolute; bottom: 40px; left: -24px;
+      background: white; border-radius: 18px;
+      padding: 16px 22px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.1);
+      border: 1.5px solid var(--lila-pale); max-width: 220px;
+      z-index: 2;
+    }
+    .hero-float-card p {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px; font-style: italic; color: var(--black);
+      line-height: 1.5;
+    }
+    .hero-float-card small {
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--lila); display: block; margin-top: 8px; font-weight: 700;
+    }
+
+    /* ── SECTION SHARED ── */
+    .section-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--lila); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-eyebrow::before { content: ''; display: block; width: 24px; height: 2px; background: var(--lila); }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 4vw, 56px);
+      line-height: 1.1; color: var(--black);
+    }
+    .section-title em { font-style: italic; color: var(--lila); }
+
+    /* ── MANIFIESTO ── */
+    #manifiesto {
+      padding: 100px 60px;
+      background: var(--black);
+      position: relative; overflow: hidden;
+    }
+    #manifiesto::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 80% 50%, rgba(161,131,255,.15), transparent),
+                  radial-gradient(ellipse 50% 50% at 20% 80%, rgba(185,162,255,.08), transparent);
+    }
+    .manifiesto-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center; position: relative;
+    }
+    .manifiesto-quote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 3vw, 44px);
+      line-height: 1.35; color: white; font-weight: 400;
+    }
+    .manifiesto-quote em { color: var(--lila-soft); font-style: italic; }
+    .manifiesto-attr {
+      margin-top: 24px;
+      font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(255,255,255,.3); font-weight: 600;
+    }
+    .manifiesto-items { display: flex; flex-direction: column; gap: 32px; }
+    .manif-item { display: flex; gap: 20px; align-items: flex-start; }
+    .manif-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px; font-weight: 700; line-height: 1;
+      color: rgba(161,131,255,.2); min-width: 44px;
+    }
+    .manif-text h4 { font-size: 16px; font-weight: 700; color: white; margin-bottom: 6px; }
+    .manif-text p { font-size: 14px; color: rgba(255,255,255,.5); line-height: 1.7; }
+
+    /* ── CAPSULAS ── */
+    #colecciones { padding: 100px 60px; background: var(--white); }
+    .colecciones-inner { max-width: 1200px; margin: 0 auto; }
+    .colecciones-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 56px;
+    }
+    .btn-ver-mas {
+      padding: 12px 28px; border-radius: 100px;
+      border: 2px solid var(--lila-pale); color: var(--lila);
+      font-weight: 600; font-size: 13px; text-decoration: none;
+      transition: all .2s;
+    }
+    .btn-ver-mas:hover { background: var(--lila); border-color: var(--lila); color: white; }
+    .capsulas-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 16px;
+    }
+    .capsula-card {
+      position: relative; overflow: hidden; border-radius: 20px;
+      cursor: pointer; background: var(--nude);
+    }
+    .capsula-card:first-child { grid-row: span 2; }
+    .capsula-img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      transition: transform .6s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .capsula-card:hover .capsula-img { transform: scale(1.05); }
+    .capsula-ph {
+      width: 100%; height: 100%; min-height: 260px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 10px; background: var(--nude);
+      border: 2px dashed var(--lila-pale);
+    }
+    .capsula-card:first-child .capsula-ph { min-height: 540px; }
+    .capsula-ph .ph-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--lila-pale); display: flex; align-items: center; justify-content: center; }
+    .capsula-ph p { font-size: 13px; color: var(--gray); font-style: italic; }
+    .capsula-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 40px 24px 24px;
+      background: linear-gradient(to top, rgba(26,23,24,.7) 0%, transparent);
+      color: white;
+    }
+    .capsula-overlay h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px; font-style: italic; font-weight: 400;
+      margin-bottom: 4px;
+    }
+    .capsula-overlay .capsula-tag {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--lila-soft);
+    }
+
+    /* ── PRINCIPIOS ── */
+    #principios { padding: 100px 60px; background: var(--lila-ghost); }
+    .principios-inner { max-width: 1200px; margin: 0 auto; }
+    .principios-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 32px; margin-top: 64px;
+    }
+    .principio-card {
+      background: white; border-radius: 20px;
+      padding: 32px 24px;
+      border: 1.5px solid var(--lila-pale);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .principio-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(161,131,255,.15);
+    }
+    .principio-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: var(--lila-pale); display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px; font-size: 24px;
+    }
+    .principio-card h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px; font-weight: 700; margin-bottom: 10px;
+      color: var(--black);
+    }
+    .principio-card p { font-size: 14px; color: var(--gray); line-height: 1.75; }
+
+    /* ── CTA ── */
+    #cta {
+      padding: 100px 60px;
+      background: linear-gradient(135deg, var(--lila) 0%, var(--lila-soft) 100%);
+      text-align: center; position: relative; overflow: hidden;
+    }
+    #cta::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 70% at 50% 100%, rgba(255,255,255,.1), transparent);
+    }
+    #cta .section-eyebrow { justify-content: center; color: rgba(255,255,255,.7); }
+    #cta .section-eyebrow::before { background: rgba(255,255,255,.5); }
+    #cta h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 5vw, 64px);
+      color: white; margin: 16px 0 12px;
+    }
+    #cta h2 em { font-style: italic; }
+    #cta p { font-size: 17px; color: rgba(255,255,255,.75); margin-bottom: 40px; }
+    .notify-form {
+      display: flex; gap: 0; max-width: 420px; margin: 0 auto;
+      border-radius: 100px; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,.15);
+    }
+    .notify-form input {
+      flex: 1; padding: 16px 24px;
+      background: white; border: none; outline: none;
+      font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--black);
+    }
+    .notify-form button {
+      padding: 16px 28px; background: var(--black); color: white;
+      border: none; font-family: 'Outfit', sans-serif;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      white-space: nowrap; transition: background .2s;
+    }
+    .notify-form button:hover { background: #333; }
+
+    /* ── VUELA LINK ── */
+    .vuela-strip {
+      background: var(--nude); padding: 20px 40px;
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+    }
+    .vuela-strip p { font-size: 14px; color: var(--gray); }
+    .vuela-strip a {
+      font-size: 14px; font-weight: 700; color: var(--lila);
+      text-decoration: none; border-bottom: 2px solid var(--lila-pale);
+      padding-bottom: 2px; transition: border-color .2s;
+    }
+    .vuela-strip a:hover { border-color: var(--lila); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black); padding: 64px 60px 40px;
+    }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px;
+    }
+    .footer-brand-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px; font-weight: 700; color: white; margin-bottom: 8px;
+    }
+    .footer-brand-logo em { font-style: italic; color: var(--lila-soft); }
+    .footer-tagline { font-size: 13px; font-style: italic; color: rgba(255,255,255,.3); margin-bottom: 24px; }
+    .footer-col h4 { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.9); font-weight: 700; margin-bottom: 16px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 10px; }
+    .footer-col a { font-size: 14px; color: rgba(255,255,255,.4); text-decoration: none; transition: color .2s; }
+    .footer-col a:hover { color: var(--lila-soft); }
+    .footer-bottom {
+      max-width: 1200px; margin: 48px auto 0;
+      padding-top: 24px; border-top: 1px solid rgba(255,255,255,.08);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: rgba(255,255,255,.25);
+    }
+    .footer-bottom a { color: var(--lila-soft); text-decoration: none; }
+    .social-row { display: flex; gap: 12px; }
+    .social-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .2s, border-color .2s;
+    }
+    .social-icon:hover { background: rgba(161,131,255,.2); border-color: var(--lila); }
+    .social-icon svg { width: 16px; height: 16px; fill: rgba(255,255,255,.55); }
+
+    /* ── ANIMATIONS ── */
+    .fade-up { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      nav { padding: 16px 24px; }
+      nav ul { gap: 20px; }
+      #inicio { grid-template-columns: 1fr; }
+      .hero-left { padding: 80px 32px 60px; }
+      .hero-left::after { display: none; }
+      .hero-right { min-height: 360px; }
+      .hero-photo-placeholder { min-height: 360px; }
+      .manifiesto-inner { grid-template-columns: 1fr; gap: 48px; }
+      .principios-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
+      .capsulas-grid { grid-template-columns: 1fr 1fr; }
+      .capsula-card:first-child { grid-row: auto; }
+      .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
+    }
+    @media (max-width: 768px) {
+      nav ul { display: none; }
+      nav ul.nav-open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: white; padding: 16px; border-bottom: 1px solid var(--lila-pale); gap: 0; }
+      nav ul.nav-open a { display: block; padding: 12px 16px; font-size: 15px; border-bottom: 1px solid rgba(0,0,0,.05); }
+      .nav-mobile-bar { display: flex; }
+      #inicio, #manifiesto, #colecciones, #principios, #cta { padding-left: 24px; padding-right: 24px; }
+      .colecciones-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .capsulas-grid { grid-template-columns: 1fr; }
+      .principios-grid { grid-template-columns: 1fr; }
+      footer { padding: 48px 24px 32px; }
+      .footer-inner { grid-template-columns: 1fr; gap: 28px; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="index.html" class="nav-logo">rev<em>la</em></a>
+  <ul id="nav-menu">
+    <li><a href="index.html" class="active">Inicio</a></li>
+    <li><a href="colecciones.html">Colecciones</a></li>
+    <li><a href="sobre.html">Sobre Revla</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+    <li><a href="login.html" class="nav-cta">Mi cuenta</a></li>
+  </ul>
+  <div class="nav-mobile-bar">
+    <a href="login.html" style="width:36px;height:36px;border-radius:50%;background:var(--lila-pale);display:inline-flex;align-items:center;justify-content:center;text-decoration:none;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--lila)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </a>
+    <button class="nav-menu-btn" onclick="document.getElementById('nav-menu').classList.toggle('nav-open')">☰</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="inicio">
+  <div class="hero-left">
+    <div class="hero-eyebrow fade-up">Revla by Vuela</div>
+    <h1 class="fade-up" style="transition-delay:.1s">Ropa que<br><em>obedece.</em></h1>
+    <p class="hero-tagline fade-up" style="transition-delay:.2s">Se adapta a tu cuerpo, tu estilo<br>y tu proceso — no al revés.</p>
+    <div class="hero-badges fade-up" style="transition-delay:.25s">
+      <span class="badge-lila">Modulable</span>
+      <span class="badge-lila">Pole &amp; Lira</span>
+      <span class="badge-nude">Heels</span>
+      <span class="badge-nude">Transitable</span>
+      <span class="badge-lila">Tu cuerpo decide</span>
+    </div>
+    <div class="hero-btns fade-up" style="transition-delay:.3s">
+      <a href="colecciones.html" class="btn-primary">
+        Ver colecciones
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#manifiesto" class="btn-secondary">Nuestra visión</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <!-- Reemplaza este bloque por: <img src="images/hero.jpg" alt="Revla" class="hero-photo"> -->
+    <div class="hero-photo-placeholder fade-up">
+      <div class="ph-icon">
+        <svg width="28" height="28" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="14.5" r="1.5"/></svg>
+      </div>
+      <p>foto campaña principal</p>
+      <p style="font-size:12px;color:var(--lila);font-weight:600;">imagen/hero.jpg</p>
+    </div>
+    <div class="hero-float-card">
+      <p>"No tienes que mostrar para pertenecer."</p>
+      <small>Manifiesto Revla</small>
+    </div>
+  </div>
+</section>
+
+<!-- MANIFIESTO -->
+<section id="manifiesto">
+  <div class="manifiesto-inner">
+    <div class="fade-up">
+      <p class="manifiesto-quote">
+        Tu cuerpo cambia,<br>
+        tu ropa <em>también.</em><br><br>
+        Aquí decides <em>tú.</em>
+      </p>
+      <p class="manifiesto-attr">Manifiesto Revla · 2025</p>
+    </div>
+    <div class="manifiesto-items">
+      <div class="manif-item fade-up" style="transition-delay:.1s">
+        <span class="manif-num">01</span>
+        <div class="manif-text">
+          <h4>Fruncir es contener</h4>
+          <p>Cada amarra y cordón es un gesto de agencia. Tú decides cuánto y cuándo.</p>
+        </div>
+      </div>
+      <div class="manif-item fade-up" style="transition-delay:.2s">
+        <span class="manif-num">02</span>
+        <div class="manif-text">
+          <h4>Soltar es expandir</h4>
+          <p>La misma prenda acompaña al cuerpo que quiere fluir y al que quiere sostenerse.</p>
+        </div>
+      </div>
+      <div class="manif-item fade-up" style="transition-delay:.3s">
+        <span class="manif-num">03</span>
+        <div class="manif-text">
+          <h4>Abrir es confiar</h4>
+          <p>La sensualidad no es mandato. Es un lenguaje disponible — si quieres usarlo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COLECCIONES PREVIEW -->
+<section id="colecciones">
+  <div class="colecciones-inner">
+    <div class="colecciones-header fade-up">
+      <div>
+        <p class="section-eyebrow">Colecciones</p>
+        <h2 class="section-title">Cápsulas<br><em>que visten tu proceso</em></h2>
+      </div>
+      <a href="colecciones.html" class="btn-ver-mas">Ver todas →</a>
+    </div>
+    <div class="capsulas-grid">
+      <!-- CÁPSULA 01 - grande -->
+      <div class="capsula-card fade-up">
+        <!-- Reemplaza por: <img src="images/capsula01.jpg" class="capsula-img" alt="Cápsula 01"> -->
+        <div class="capsula-ph" style="min-height:540px;">
+          <div class="ph-icon" style="width:56px;height:56px;">
+            <svg width="28" height="28" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg>
+          </div>
+          <p>imagen/capsula01.jpg</p>
+        </div>
+        <div class="capsula-overlay">
+          <span class="capsula-tag">Próximamente</span>
+          <h3>Cápsula 01 — Sin molde</h3>
+        </div>
+      </div>
+      <!-- CÁPSULA 02 -->
+      <div class="capsula-card fade-up" style="transition-delay:.1s">
+        <div class="capsula-ph">
+          <div class="ph-icon">
+            <svg width="24" height="24" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg>
+          </div>
+          <p>imagen/capsula02.jpg</p>
+        </div>
+        <div class="capsula-overlay">
+          <span class="capsula-tag">Próximamente</span>
+          <h3>Cápsula 02</h3>
+        </div>
+      </div>
+      <!-- CÁPSULA 03 -->
+      <div class="capsula-card fade-up" style="transition-delay:.2s">
+        <div class="capsula-ph">
+          <div class="ph-icon">
+            <svg width="24" height="24" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg>
+          </div>
+          <p>imagen/capsula03.jpg</p>
+        </div>
+        <div class="capsula-overlay">
+          <span class="capsula-tag">Próximamente</span>
+          <h3>Cápsula 03</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRINCIPIOS -->
+<section id="principios">
+  <div class="principios-inner">
+    <div class="fade-up">
+      <p class="section-eyebrow">Cómo diseñamos</p>
+      <h2 class="section-title">Principios que guían<br><em>cada prenda</em></h2>
+    </div>
+    <div class="principios-grid">
+      <div class="principio-card fade-up" style="transition-delay:.0s">
+        <div class="principio-icon">🔄</div>
+        <h4>Modulable</h4>
+        <p>El short que se convierte en calza. El top que abre o cierra. Misma prenda, infinitas tú.</p>
+      </div>
+      <div class="principio-card fade-up" style="transition-delay:.1s">
+        <div class="principio-icon">✈️</div>
+        <h4>Transitable</h4>
+        <p>De pole a lira a heels sin cambiarte. Diseñada para el cuerpo en movimiento constante.</p>
+      </div>
+      <div class="principio-card fade-up" style="transition-delay:.2s">
+        <div class="principio-icon">🌊</div>
+        <h4>Adaptable</h4>
+        <p>Tu cuerpo cambia — por el ciclo, el día, el ánimo. Tu ropa lo sabe y acompaña.</p>
+      </div>
+      <div class="principio-card fade-up" style="transition-delay:.3s">
+        <div class="principio-icon">💜</div>
+        <h4>Tuya</h4>
+        <p>Nada de formas impuestas. La prenda obedece a quien la habita — no al revés.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div style="position:relative;max-width:600px;margin:0 auto;">
+    <p class="section-eyebrow" style="justify-content:center;">La primera cápsula</p>
+    <h2 class="fade-up">Llega <em>pronto.</em></h2>
+    <p class="fade-up" style="transition-delay:.1s">Sé de las primeras en saberlo.</p>
+    <form class="notify-form fade-up" style="transition-delay:.2s" onsubmit="handleCTA(event)">
+      <input type="email" placeholder="tu@correo.com" required>
+      <button type="submit">Notifícame</button>
+    </form>
+    <p id="cta-msg" style="margin-top:16px;color:rgba(255,255,255,.9);font-weight:600;display:none;">✓ ¡Listo! Te avisamos cuando llegue.</p>
+  </div>
+</section>
+
+<!-- STRIP ESPACIO VUELA -->
+<div class="vuela-strip">
+  <svg width="16" height="16" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+  <p>Revla es parte del universo</p>
+  <a href="https://espaciovuela.cl" target="_blank">Espacio Vuela →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand-logo">rev<em>la</em></div>
+      <p class="footer-tagline">Ropa que obedece.</p>
+      <div class="social-row">
+        <a class="social-icon" href="#" title="Instagram">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a class="social-icon" href="#" title="TikTok">
+          <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05A6.34 6.34 0 003.15 15.3a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.19a8.17 8.17 0 004.78 1.52V7.27a4.85 4.85 0 01-1.02-.58z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Tienda</h4>
+      <ul>
+        <li><a href="colecciones.html">Colecciones</a></li>
+        <li><a href="#">Novedades</a></li>
+        <li><a href="#">Tallaje</a></li>
+        <li><a href="#">Cuidado de prendas</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Revla</h4>
+      <ul>
+        <li><a href="#">Manifiesto</a></li>
+        <li><a href="sobre.html">Sobre nosotras</a></li>
+        <li><a href="https://espaciovuela.cl" target="_blank">Espacio Vuela</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Ayuda</h4>
+      <ul>
+        <li><a href="#">Envíos</a></li>
+        <li><a href="#">Devoluciones</a></li>
+        <li><a href="login.html">Mi cuenta</a></li>
+        <li><a href="contacto.html">Contacto</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Revla. Todos los derechos reservados.</span>
+    <span>Una marca de <a href="https://espaciovuela.cl" target="_blank">Espacio Vuela</a></span>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll
+  window.addEventListener('scroll', () => {
+    document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
+  });
+  // Fade up
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+  // CTA form
+  function handleCTA(e) {
+    e.preventDefault();
+    e.target.style.display = 'none';
+    document.getElementById('cta-msg').style.display = 'block';
+  }
+  // Close mobile menu on link click
+  document.querySelectorAll('#nav-menu a').forEach(a => {
+    a.addEventListener('click', () => document.getElementById('nav-menu').classList.remove('nav-open'));
+  });
+</script>
+</body>
+</html>

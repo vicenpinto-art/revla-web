@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colecciones — Revla</title>
+  <meta name="description" content="Explora las cápsulas de Revla. Ropa modulable y adaptable.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --lila: #a183ff;
+      --lila-soft: #b9a2ff;
+      --lila-pale: #e0d6ff;
+      --lila-ghost: #f2eeff;
+      --nude: #f5efe8;
+      --nude2: #ede4d9;
+      --black: #1a1718;
+      --gray: #6b6570;
+      --white: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; background: #fff; color: var(--black); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+    /* NAV (same as index) */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      padding: 18px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(161,131,255,0.15);
+      transition: box-shadow .3s;
+    }
+    nav.scrolled { box-shadow: 0 2px 24px rgba(161,131,255,0.12); }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; letter-spacing: 0.04em; text-decoration: none; color: var(--black); }
+    .nav-logo em { font-style: italic; color: var(--lila); }
+    nav ul { list-style: none; display: flex; gap: 32px; align-items: center; }
+    nav ul a { text-decoration: none; color: var(--gray); font-size: 14px; font-weight: 500; letter-spacing: 0.3px; transition: color .2s; }
+    nav ul a:hover, nav ul a.active { color: var(--lila); }
+    .nav-cta { background: var(--lila) !important; color: #fff !important; padding: 10px 22px; border-radius: 100px; font-weight: 600 !important; transition: transform .2s, box-shadow .2s !important; }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(161,131,255,.45) !important; }
+    .nav-mobile-bar { display: none; align-items: center; gap: 10px; }
+    .nav-menu-btn { background: none; border: 1.5px solid rgba(0,0,0,.12); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 18px; color: #333; }
+
+    /* PAGE HERO */
+    .page-hero {
+      padding: 140px 60px 80px;
+      background: linear-gradient(135deg, var(--lila-ghost) 0%, var(--nude) 100%);
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content: 'COLECCIONES';
+      position: absolute; right: -20px; top: 50%; transform: translateY(-50%) rotate(90deg);
+      font-family: 'Playfair Display', serif;
+      font-size: 80px; font-weight: 700; letter-spacing: 0.2em;
+      color: rgba(161,131,255,.06);
+      white-space: nowrap; pointer-events: none;
+    }
+    .page-hero-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: end; }
+    .page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--lila); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .page-eyebrow::before { content: ''; display: block; width: 24px; height: 2px; background: var(--lila); }
+    .page-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(44px, 5vw, 72px); line-height: 1.05; }
+    .page-hero h1 em { font-style: italic; color: var(--lila); }
+    .page-hero p { font-size: 16px; color: var(--gray); line-height: 1.75; max-width: 420px; margin-top: 20px; }
+    .hero-count { text-align: right; }
+    .hero-count .big-num { font-family: 'Playfair Display', serif; font-size: 96px; font-weight: 700; color: var(--lila-pale); line-height: 1; }
+    .hero-count small { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--lila); font-weight: 700; display: block; text-align: right; }
+
+    /* FILTER BAR */
+    .filter-bar {
+      background: white; border-bottom: 1px solid var(--lila-pale);
+      padding: 20px 60px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      position: sticky; top: 72px; z-index: 50;
+    }
+    .filter-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); margin-right: 8px; }
+    .filter-btn {
+      padding: 8px 20px; border-radius: 100px;
+      border: 1.5px solid rgba(0,0,0,.1); background: transparent;
+      font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600;
+      color: var(--gray); cursor: pointer; transition: all .2s;
+    }
+    .filter-btn:hover { border-color: var(--lila); color: var(--lila); }
+    .filter-btn.active { background: var(--lila); border-color: var(--lila); color: white; }
+
+    /* CAPSULAS LIST */
+    .capsulas-section { padding: 80px 60px; max-width: 1200px; margin: 0 auto; }
+
+    /* CAPSULA ACCORDION */
+    .capsula-block {
+      border-top: 1px solid var(--lila-pale);
+      overflow: hidden;
+    }
+    .capsula-block:last-child { border-bottom: 1px solid var(--lila-pale); }
+
+    .capsula-trigger {
+      width: 100%; display: grid;
+      grid-template-columns: 72px 1fr auto auto;
+      align-items: center; gap: 24px;
+      padding: 32px 0; background: none; border: none;
+      cursor: pointer; text-align: left;
+      transition: padding .2s;
+    }
+    .capsula-trigger:hover { padding-left: 8px; }
+
+    .cap-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px; font-weight: 700; color: var(--lila-pale);
+      line-height: 1;
+    }
+
+    .cap-title h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(22px, 3vw, 36px); font-style: italic; font-weight: 400;
+      color: var(--black);
+    }
+    .cap-title p { font-size: 13px; color: var(--gray); margin-top: 4px; letter-spacing: 0.3px; }
+
+    .cap-status {
+      padding: 8px 18px; border-radius: 100px;
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; white-space: nowrap;
+    }
+    .status-coming { background: var(--lila-pale); color: var(--lila); }
+    .status-available { background: #d4f5e9; color: #1a7a50; }
+
+    .cap-arrow {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1.5px solid var(--lila-pale);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .35s, background .2s, border-color .2s;
+      flex-shrink: 0;
+    }
+    .capsula-block.open .cap-arrow {
+      transform: rotate(45deg);
+      background: var(--lila); border-color: var(--lila);
+    }
+    .cap-arrow svg { width: 14px; height: 14px; color: var(--lila); transition: color .2s; }
+    .capsula-block.open .cap-arrow svg { color: white; }
+
+    .cap-content {
+      max-height: 0; overflow: hidden;
+      transition: max-height .65s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .cap-content-inner { padding: 0 0 64px; }
+
+    /* CAPSULA INFO */
+    .cap-info { display: grid; grid-template-columns: 2fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .cap-desc { font-size: 16px; font-weight: 300; line-height: 1.85; color: var(--gray); }
+    .cap-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .cap-tag {
+      padding: 6px 16px; border-radius: 100px;
+      font-size: 12px; font-weight: 700;
+      background: var(--lila-pale); color: var(--lila);
+    }
+    .cap-details { display: flex; flex-direction: column; gap: 0; }
+    .detail-row {
+      display: flex; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid var(--lila-ghost);
+      font-size: 14px;
+    }
+    .detail-row dt { color: var(--gray); }
+    .detail-row dd { font-weight: 600; color: var(--black); }
+
+    /* PRODUCTOS GRID */
+    .productos-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 24px; margin-bottom: 48px;
+    }
+    .producto-card { cursor: pointer; }
+    .producto-img-wrap { position: relative; overflow: hidden; border-radius: 16px; background: var(--nude); }
+    .producto-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; transition: transform .5s; }
+    .producto-card:hover .producto-img { transform: scale(1.04); }
+    .producto-ph {
+      width: 100%; aspect-ratio: 3/4;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; background: var(--nude);
+      border: 2px dashed var(--lila-pale);
+    }
+    .producto-ph .ph-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--lila-pale); display: flex; align-items: center; justify-content: center; }
+    .producto-ph p { font-size: 12px; color: var(--gray); font-style: italic; }
+    .prod-badge {
+      position: absolute; top: 12px; left: 12px;
+      padding: 5px 12px; border-radius: 100px;
+      font-size: 11px; font-weight: 700;
+      background: var(--lila); color: white;
+    }
+    .producto-info { padding: 14px 0 0; }
+    .prod-sub { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--lila); margin-bottom: 4px; }
+    .prod-name { font-family: 'Playfair Display', serif; font-size: 18px; font-style: italic; color: var(--black); margin-bottom: 6px; }
+    .prod-price { font-size: 14px; font-weight: 600; color: var(--black); }
+    .prod-price.tbd { font-weight: 300; font-style: italic; color: var(--gray); }
+
+    /* COMING SOON BOX */
+    .coming-box {
+      background: var(--lila-ghost); border-radius: 20px;
+      padding: 64px 40px; text-align: center;
+      border: 2px dashed var(--lila-pale);
+    }
+    .coming-box h3 { font-family: 'Playfair Display', serif; font-size: 28px; font-style: italic; color: var(--lila); margin-bottom: 12px; }
+    .coming-box p { font-size: 15px; color: var(--gray); max-width: 360px; margin: 0 auto 28px; line-height: 1.7; }
+    .notify-inline {
+      display: flex; gap: 0; max-width: 360px; margin: 0 auto;
+      border-radius: 100px; overflow: hidden;
+      border: 2px solid var(--lila-pale);
+    }
+    .notify-inline input {
+      flex: 1; padding: 13px 20px; border: none; outline: none;
+      font-family: 'Outfit', sans-serif; font-size: 14px; background: white;
+    }
+    .notify-inline button {
+      padding: 13px 22px; background: var(--lila); color: white;
+      border: none; font-family: 'Outfit', sans-serif;
+      font-size: 13px; font-weight: 700; cursor: pointer; transition: background .2s;
+    }
+    .notify-inline button:hover { background: var(--lila-soft); }
+
+    /* STRIP */
+    .vuela-strip { background: var(--nude); padding: 20px 40px; display: flex; align-items: center; justify-content: center; gap: 16px; }
+    .vuela-strip p { font-size: 14px; color: var(--gray); }
+    .vuela-strip a { font-size: 14px; font-weight: 700; color: var(--lila); text-decoration: none; border-bottom: 2px solid var(--lila-pale); padding-bottom: 2px; transition: border-color .2s; }
+    .vuela-strip a:hover { border-color: var(--lila); }
+
+    /* FOOTER */
+    footer { background: var(--black); padding: 64px 60px 40px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; }
+    .footer-brand-logo { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: white; margin-bottom: 8px; }
+    .footer-brand-logo em { font-style: italic; color: var(--lila-soft); }
+    .footer-tagline { font-size: 13px; font-style: italic; color: rgba(255,255,255,.3); margin-bottom: 24px; }
+    .footer-col h4 { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.9); font-weight: 700; margin-bottom: 16px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 10px; }
+    .footer-col a { font-size: 14px; color: rgba(255,255,255,.4); text-decoration: none; transition: color .2s; }
+    .footer-col a:hover { color: var(--lila-soft); }
+    .footer-bottom { max-width: 1200px; margin: 48px auto 0; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.08); display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: rgba(255,255,255,.25); }
+    .footer-bottom a { color: var(--lila-soft); text-decoration: none; }
+
+    /* FADE UP */
+    .fade-up { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      nav ul { display: none; }
+      nav ul.nav-open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: white; padding: 16px; border-bottom: 1px solid var(--lila-pale); gap: 0; }
+      nav ul.nav-open a { display: block; padding: 12px 16px; font-size: 15px; border-bottom: 1px solid rgba(0,0,0,.05); }
+      .nav-mobile-bar { display: flex; }
+      .page-hero { padding: 120px 24px 60px; }
+      .page-hero-inner { grid-template-columns: 1fr; gap: 24px; }
+      .hero-count { text-align: left; }
+      .filter-bar { padding: 16px 24px; top: 66px; }
+      .capsulas-section { padding: 48px 24px; }
+      .capsula-trigger { grid-template-columns: 52px 1fr auto; gap: 16px; }
+      .cap-status { display: none; }
+      .cap-info { grid-template-columns: 1fr; }
+      .productos-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+      footer { padding: 48px 24px 32px; }
+      .footer-inner { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .productos-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="index.html" class="nav-logo">rev<em>la</em></a>
+  <ul id="nav-menu">
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="colecciones.html" class="active">Colecciones</a></li>
+    <li><a href="sobre.html">Sobre Revla</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+    <li><a href="login.html" class="nav-cta">Mi cuenta</a></li>
+  </ul>
+  <div class="nav-mobile-bar">
+    <a href="login.html" style="width:36px;height:36px;border-radius:50%;background:var(--lila-pale);display:inline-flex;align-items:center;justify-content:center;text-decoration:none;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--lila)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </a>
+    <button class="nav-menu-btn" onclick="document.getElementById('nav-menu').classList.toggle('nav-open')">☰</button>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<header class="page-hero">
+  <div class="page-hero-inner">
+    <div class="fade-up">
+      <p class="page-eyebrow">Revla</p>
+      <h1>Colecciones<br><em>cápsula</em></h1>
+      <p>Cada cápsula es un universo propio. Prendas que se adaptan a tu proceso, tu ritmo y tu cuerpo — sin imponerte una forma.</p>
+    </div>
+    <div class="hero-count fade-up" style="transition-delay:.15s">
+      <div class="big-num">03</div>
+      <small>cápsulas en desarrollo</small>
+    </div>
+  </div>
+</header>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <span class="filter-label">Filtrar:</span>
+  <button class="filter-btn active" onclick="filtrar('todas', this)">Todas</button>
+  <button class="filter-btn" onclick="filtrar('coming', this)">Próximamente</button>
+  <button class="filter-btn" onclick="filtrar('available', this)">Disponibles</button>
+</div>
+
+<!-- CAPSULAS -->
+<main class="capsulas-section">
+
+  <!-- CÁPSULA 01 -->
+  <div class="capsula-block fade-up" id="cap-01" data-status="coming">
+    <button class="capsula-trigger" onclick="toggleCap('cap-01')" aria-expanded="false">
+      <span class="cap-num">01</span>
+      <div class="cap-title">
+        <h2>Sin molde</h2>
+        <p>La primera cápsula de Revla · 2025</p>
+      </div>
+      <span class="cap-status status-coming">Próximamente</span>
+      <div class="cap-arrow">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+    </button>
+    <div class="cap-content" id="cap-01-body">
+      <div class="cap-content-inner">
+        <div class="cap-info">
+          <div>
+            <p class="cap-desc">"Sin molde" es la apertura. La primera cápsula nace del movimiento — del cuerpo que se estira, se contrae, decide y vuelve a decidir. Cada prenda puede transformarse: el short que se convierte en calza, el top que se abre o se cierra. Diseñada para quienes entrenan pole, lira, heels o simplemente quieren habitar su cuerpo con más libertad.</p>
+            <div class="cap-tags">
+              <span class="cap-tag">Pole &amp; Lira</span>
+              <span class="cap-tag">Heels</span>
+              <span class="cap-tag">Modulable</span>
+              <span class="cap-tag">Día a día</span>
+            </div>
+          </div>
+          <dl class="cap-details">
+            <div class="detail-row"><dt>Estado</dt><dd>Próximamente</dd></div>
+            <div class="detail-row"><dt>Prendas</dt><dd>6 diseños</dd></div>
+            <div class="detail-row"><dt>Telas</dt><dd>Lycra / Supplex</dd></div>
+            <div class="detail-row"><dt>Tallaje</dt><dd>XS → XXL</dd></div>
+          </dl>
+        </div>
+
+        <!-- PRODUCTOS -->
+        <div class="productos-grid">
+          <div class="producto-card">
+            <div class="producto-img-wrap">
+              <!-- <img src="images/prod-convertible.jpg" class="producto-img" alt="El convertible"> -->
+              <div class="producto-ph">
+                <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
+                <p>images/prod-01.jpg</p>
+              </div>
+              <span class="prod-badge">Pronto</span>
+            </div>
+            <div class="producto-info">
+              <p class="prod-sub">Short · Calza</p>
+              <h3 class="prod-name">El convertible</h3>
+              <p class="prod-price tbd">Precio por confirmar</p>
+            </div>
+          </div>
+          <div class="producto-card">
+            <div class="producto-img-wrap">
+              <div class="producto-ph">
+                <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
+                <p>images/prod-02.jpg</p>
+              </div>
+              <span class="prod-badge">Pronto</span>
+            </div>
+            <div class="producto-info">
+              <p class="prod-sub">Top</p>
+              <h3 class="prod-name">El acordeón</h3>
+              <p class="prod-price tbd">Precio por confirmar</p>
+            </div>
+          </div>
+          <div class="producto-card">
+            <div class="producto-img-wrap">
+              <div class="producto-ph">
+                <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
+                <p>images/prod-03.jpg</p>
+              </div>
+              <span class="prod-badge">Pronto</span>
+            </div>
+            <div class="producto-info">
+              <p class="prod-sub">Calza</p>
+              <h3 class="prod-name">La amarre</h3>
+              <p class="prod-price tbd">Precio por confirmar</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="coming-box">
+          <h3>¿Quieres saber cuándo llega?</h3>
+          <p>Déjanos tu correo y te avisamos en cuanto se lance la Cápsula 01.</p>
+          <form class="notify-inline" onsubmit="notificar(event, '01')">
+            <input type="email" placeholder="tu@correo.com" required>
+            <button type="submit">Avisarme</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CÁPSULA 02 -->
+  <div class="capsula-block fade-up" id="cap-02" data-status="coming" style="transition-delay:.1s">
+    <button class="capsula-trigger" onclick="toggleCap('cap-02')" aria-expanded="false">
+      <span class="cap-num">02</span>
+      <div class="cap-title">
+        <h2>Cápsula 02</h2>
+        <p>Nombre por revelar · 2025–2026</p>
+      </div>
+      <span class="cap-status status-coming">Próximamente</span>
+      <div class="cap-arrow">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+    </button>
+    <div class="cap-content" id="cap-02-body">
+      <div class="cap-content-inner">
+        <div class="coming-box">
+          <h3>En proceso</h3>
+          <p>La segunda cápsula está en desarrollo. Todavía no se puede ver nada — pero pronto.</p>
+          <form class="notify-inline" onsubmit="notificar(event, '02')">
+            <input type="email" placeholder="tu@correo.com" required>
+            <button type="submit">Avisarme</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CÁPSULA 03 -->
+  <div class="capsula-block fade-up" id="cap-03" data-status="coming" style="transition-delay:.2s">
+    <button class="capsula-trigger" onclick="toggleCap('cap-03')" aria-expanded="false">
+      <span class="cap-num">03</span>
+      <div class="cap-title">
+        <h2>Cápsula 03</h2>
+        <p>Nombre por revelar · 2026</p>
+      </div>
+      <span class="cap-status status-coming">Próximamente</span>
+      <div class="cap-arrow">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+    </button>
+    <div class="cap-content" id="cap-03-body">
+      <div class="cap-content-inner">
+        <div class="coming-box">
+          <h3>Todavía no</h3>
+          <p>La tercera cápsula está apenas naciendo. Habrá que esperar un poco más.</p>
+          <form class="notify-inline" onsubmit="notificar(event, '03')">
+            <input type="email" placeholder="tu@correo.com" required>
+            <button type="submit">Avisarme</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- STRIP ESPACIO VUELA -->
+<div class="vuela-strip">
+  <svg width="16" height="16" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+  <p>Revla es parte del universo</p>
+  <a href="https://espaciovuela.cl" target="_blank">Espacio Vuela →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand-logo">rev<em>la</em></div>
+      <p class="footer-tagline">Ropa que obedece.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Tienda</h4>
+      <ul>
+        <li><a href="colecciones.html">Colecciones</a></li>
+        <li><a href="#">Novedades</a></li>
+        <li><a href="#">Tallaje</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Revla</h4>
+      <ul>
+        <li><a href="#">Manifiesto</a></li>
+        <li><a href="sobre.html">Sobre nosotras</a></li>
+        <li><a href="https://espaciovuela.cl" target="_blank">Espacio Vuela</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Ayuda</h4>
+      <ul>
+        <li><a href="#">Envíos</a></li>
+        <li><a href="#">Devoluciones</a></li>
+        <li><a href="login.html">Mi cuenta</a></li>
+        <li><a href="contacto.html">Contacto</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Revla. Todos los derechos reservados.</span>
+    <span>Una marca de <a href="https://espaciovuela.cl" target="_blank">Espacio Vuela</a></span>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll
+  window.addEventListener('scroll', () => {
+    document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
+  });
+  // Fade up
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+  // Toggle accordion
+  function toggleCap(id) {
+    const block = document.getElementById(id);
+    const body = document.getElementById(id + '-body');
+    const btn = block.querySelector('.capsula-trigger');
+    const isOpen = block.classList.contains('open');
+
+    // close all
+    document.querySelectorAll('.capsula-block.open').forEach(b => {
+      b.classList.remove('open');
+      document.getElementById(b.id + '-body').style.maxHeight = '0';
+      b.querySelector('.capsula-trigger').setAttribute('aria-expanded', 'false');
+    });
+
+    if (!isOpen) {
+      block.classList.add('open');
+      body.style.maxHeight = body.scrollHeight + 200 + 'px';
+      btn.setAttribute('aria-expanded', 'true');
+      // scroll into view
+      setTimeout(() => block.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+  }
+
+  // Filter
+  function filtrar(status, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.capsula-block').forEach(b => {
+      b.style.display = (status === 'todas' || b.dataset.status === status) ? '' : 'none';
+    });
+  }
+
+  // Notify
+  function notificar(e, num) {
+    e.preventDefault();
+    e.target.innerHTML = '<p style="padding:13px 0; color:var(--lila); font-weight:700; font-size:14px;">✓ ¡Listo! Te avisamos cuando llegue la Cápsula ' + num + '.</p>';
+  }
+
+  // Close mobile menu
+  document.querySelectorAll('#nav-menu a').forEach(a => {
+    a.addEventListener('click', () => document.getElementById('nav-menu').classList.remove('nav-open'));
+  });
+</script>
+</body>
+</html>

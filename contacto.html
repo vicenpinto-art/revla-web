@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contacto — Revla</title>
+  <meta name="description" content="¿Tienes preguntas sobre Revla? Escríbenos. Respondemos rápido.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --lila: #a183ff;
+      --lila-soft: #b9a2ff;
+      --lila-pale: #e0d6ff;
+      --lila-ghost: #f2eeff;
+      --nude: #f5efe8;
+      --nude2: #ede4d9;
+      --black: #1a1718;
+      --gray: #6b6570;
+      --white: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; background: #fff; color: var(--black); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      padding: 18px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(161,131,255,0.15);
+      transition: box-shadow .3s;
+    }
+    nav.scrolled { box-shadow: 0 2px 24px rgba(161,131,255,0.12); }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; letter-spacing: 0.04em; text-decoration: none; color: var(--black); }
+    .nav-logo em { font-style: italic; color: var(--lila); }
+    nav ul { list-style: none; display: flex; gap: 32px; align-items: center; }
+    nav ul a { text-decoration: none; color: var(--gray); font-size: 14px; font-weight: 500; letter-spacing: 0.3px; transition: color .2s; }
+    nav ul a:hover, nav ul a.active { color: var(--lila); }
+    .nav-cta { background: var(--lila) !important; color: #fff !important; padding: 10px 22px; border-radius: 100px; font-weight: 600 !important; transition: transform .2s, box-shadow .2s !important; }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(161,131,255,.45) !important; }
+    .nav-mobile-bar { display: none; align-items: center; gap: 10px; }
+    .nav-menu-btn { background: none; border: 1.5px solid rgba(0,0,0,.12); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 18px; color: #333; }
+
+    .eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--lila);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .eyebrow::before { content: ''; display: block; width: 24px; height: 2px; background: var(--lila); }
+
+    /* ── PAGE HERO ── */
+    .page-hero {
+      padding: 160px 60px 80px;
+      background: linear-gradient(135deg, var(--black) 0%, #2a2030 100%);
+      position: relative; overflow: hidden;
+      text-align: center;
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 80%, rgba(161,131,255,.2), transparent),
+                  radial-gradient(ellipse 40% 40% at 20% 20%, rgba(185,162,255,.08), transparent);
+    }
+    .page-hero-content { position: relative; max-width: 700px; margin: 0 auto; }
+    .page-hero .eyebrow { justify-content: center; color: rgba(185,162,255,.7); }
+    .page-hero .eyebrow::before { background: rgba(185,162,255,.5); }
+    .page-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(52px, 7vw, 96px);
+      line-height: 1; color: white; font-weight: 700;
+      margin: 20px 0 20px;
+    }
+    .page-hero h1 em { font-style: italic; color: var(--lila-soft); display: block; }
+    .page-hero p { font-size: 17px; font-weight: 300; color: rgba(255,255,255,.5); line-height: 1.75; max-width: 480px; margin: 0 auto; }
+
+    /* ── MAIN GRID ── */
+    .contact-main {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1.2fr;
+      gap: 0;
+      padding: 0 0 100px;
+    }
+
+    /* ── SIDEBAR ── */
+    .contact-sidebar {
+      padding: 72px 60px;
+      background: var(--lila-ghost);
+      border-right: 1px solid var(--lila-pale);
+    }
+    .contact-sidebar h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px; font-style: italic;
+      color: var(--black); margin: 16px 0 32px; line-height: 1.2;
+    }
+    .contact-items { display: flex; flex-direction: column; gap: 28px; }
+    .contact-item {
+      display: flex; gap: 18px; align-items: flex-start;
+    }
+    .contact-item-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: white; border: 1.5px solid var(--lila-pale);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 20px;
+      transition: background .2s, border-color .2s;
+    }
+    .contact-item:hover .contact-item-icon { background: var(--lila); border-color: var(--lila); }
+    .contact-item:hover .contact-item-icon svg { stroke: white; }
+    .contact-item-icon svg { width: 20px; height: 20px; stroke: var(--lila); fill: none; stroke-width: 1.8; transition: stroke .2s; }
+    .contact-item-body h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .contact-item-body p { font-size: 14px; color: var(--gray); line-height: 1.6; }
+    .contact-item-body a { color: var(--lila); text-decoration: none; font-weight: 600; }
+    .contact-item-body a:hover { text-decoration: underline; }
+
+    .social-section { margin-top: 48px; }
+    .social-section h4 { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gray); margin-bottom: 16px; }
+    .social-row { display: flex; gap: 10px; }
+    .social-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: 100px;
+      background: white; border: 1.5px solid var(--lila-pale);
+      font-size: 13px; font-weight: 600; color: var(--black);
+      text-decoration: none; transition: all .2s;
+    }
+    .social-btn:hover { background: var(--lila); border-color: var(--lila); color: white; }
+    .social-btn svg { width: 14px; height: 14px; }
+
+    .sidebar-note {
+      margin-top: 48px;
+      background: white; border-radius: 16px;
+      padding: 20px 24px; border: 1.5px solid var(--lila-pale);
+    }
+    .sidebar-note p {
+      font-size: 13px; color: var(--gray); line-height: 1.7;
+    }
+    .sidebar-note strong { color: var(--black); }
+
+    /* ── FORM ── */
+    .contact-form-wrap {
+      padding: 72px 60px;
+    }
+    .contact-form-wrap h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px; font-style: italic;
+      color: var(--black); margin: 16px 0 32px;
+    }
+
+    /* TOPIC PILLS */
+    .topic-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+    .topic-pill {
+      padding: 8px 18px; border-radius: 100px;
+      border: 1.5px solid rgba(0,0,0,.1); background: transparent;
+      font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600;
+      color: var(--gray); cursor: pointer; transition: all .2s;
+    }
+    .topic-pill:hover { border-color: var(--lila); color: var(--lila); }
+    .topic-pill.active { background: var(--lila); border-color: var(--lila); color: white; }
+
+    /* FORM FIELDS */
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block; font-size: 12px; font-weight: 700;
+      color: var(--gray); letter-spacing: 0.5px; text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%; padding: 13px 16px;
+      border: 1.5px solid rgba(0,0,0,.1); border-radius: 12px;
+      font-family: 'Outfit', sans-serif; font-size: 15px;
+      color: var(--black); background: white; outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      appearance: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--lila);
+      box-shadow: 0 0 0 3px rgba(161,131,255,.1);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(0,0,0,.2); }
+    .form-group textarea { resize: vertical; min-height: 130px; }
+
+    .btn-submit {
+      width: 100%; padding: 15px; border-radius: 100px;
+      background: var(--lila); color: white; border: none;
+      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+      cursor: pointer; margin-top: 8px;
+      transition: transform .2s, box-shadow .2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(161,131,255,.45); }
+    .btn-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .form-msg {
+      padding: 14px 18px; border-radius: 12px;
+      font-size: 14px; font-weight: 600; margin-top: 16px;
+      display: none; text-align: center;
+    }
+    .form-msg.success { background: rgba(161,131,255,.12); color: #5b3fb5; display: block; }
+    .form-msg.error { background: rgba(255,78,104,.1); color: #c0001a; display: block; }
+
+    /* ── FAQ ── */
+    #faq {
+      background: var(--nude);
+      padding: 100px 60px;
+    }
+    .faq-inner { max-width: 800px; margin: 0 auto; }
+    .faq-header { margin-bottom: 56px; }
+    .faq-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 3.5vw, 48px);
+      margin-top: 16px; line-height: 1.1;
+    }
+    .faq-header h2 em { font-style: italic; color: var(--lila); }
+    .faq-list { display: flex; flex-direction: column; gap: 0; }
+    .faq-item { border-top: 1px solid var(--nude2); }
+    .faq-item:last-child { border-bottom: 1px solid var(--nude2); }
+    .faq-trigger {
+      width: 100%; display: flex; justify-content: space-between;
+      align-items: center; gap: 16px;
+      padding: 22px 0; background: none; border: none;
+      cursor: pointer; text-align: left;
+    }
+    .faq-trigger h4 { font-size: 16px; font-weight: 600; color: var(--black); line-height: 1.4; }
+    .faq-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1.5px solid var(--lila-pale);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: transform .3s, background .2s, border-color .2s;
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); background: var(--lila); border-color: var(--lila); }
+    .faq-icon svg { width: 12px; height: 12px; color: var(--lila); transition: color .2s; }
+    .faq-item.open .faq-icon svg { color: white; }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height .4s ease;
+    }
+    .faq-answer p {
+      font-size: 15px; font-weight: 300; color: var(--gray);
+      line-height: 1.8; padding-bottom: 22px;
+    }
+
+    /* ── VUELA STRIP ── */
+    .vuela-strip { background: var(--lila-ghost); padding: 20px 40px; display: flex; align-items: center; justify-content: center; gap: 16px; }
+    .vuela-strip p { font-size: 14px; color: var(--gray); }
+    .vuela-strip a { font-size: 14px; font-weight: 700; color: var(--lila); text-decoration: none; border-bottom: 2px solid var(--lila-pale); padding-bottom: 2px; transition: border-color .2s; }
+    .vuela-strip a:hover { border-color: var(--lila); }
+
+    /* ── FOOTER ── */
+    footer { background: var(--black); padding: 64px 60px 40px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; }
+    .footer-brand-logo { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: white; margin-bottom: 8px; }
+    .footer-brand-logo em { font-style: italic; color: var(--lila-soft); }
+    .footer-tagline { font-size: 13px; font-style: italic; color: rgba(255,255,255,.3); margin-bottom: 24px; }
+    .footer-col h4 { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.9); font-weight: 700; margin-bottom: 16px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 10px; }
+    .footer-col a { font-size: 14px; color: rgba(255,255,255,.4); text-decoration: none; transition: color .2s; }
+    .footer-col a:hover { color: var(--lila-soft); }
+    .footer-bottom { max-width: 1200px; margin: 48px auto 0; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.08); display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: rgba(255,255,255,.25); }
+    .footer-bottom a { color: var(--lila-soft); text-decoration: none; }
+
+    /* ── ANIMATIONS ── */
+    .fade-up { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 16px 24px; }
+      nav ul { display: none; }
+      nav ul.nav-open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: white; padding: 16px; border-bottom: 1px solid var(--lila-pale); gap: 0; }
+      nav ul.nav-open a { display: block; padding: 12px 16px; font-size: 15px; border-bottom: 1px solid rgba(0,0,0,.05); }
+      .nav-mobile-bar { display: flex; }
+      .page-hero { padding: 130px 24px 60px; }
+      .contact-main { grid-template-columns: 1fr; }
+      .contact-sidebar { padding: 48px 24px; border-right: none; border-bottom: 1px solid var(--lila-pale); }
+      .contact-form-wrap { padding: 48px 24px; }
+      .form-row-2 { grid-template-columns: 1fr; }
+      #faq { padding: 72px 24px; }
+      footer { padding: 48px 24px 32px; }
+      .footer-inner { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .social-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="index.html" class="nav-logo">rev<em>la</em></a>
+  <ul id="nav-menu">
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="colecciones.html">Colecciones</a></li>
+    <li><a href="sobre.html">Sobre Revla</a></li>
+    <li><a href="contacto.html" class="active">Contacto</a></li>
+    <li><a href="login.html" class="nav-cta">Mi cuenta</a></li>
+  </ul>
+  <div class="nav-mobile-bar">
+    <a href="login.html" style="width:36px;height:36px;border-radius:50%;background:var(--lila-pale);display:inline-flex;align-items:center;justify-content:center;text-decoration:none;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--lila)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </a>
+    <button class="nav-menu-btn" onclick="document.getElementById('nav-menu').classList.toggle('nav-open')">☰</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="page-hero">
+  <div class="page-hero-content">
+    <span class="eyebrow">Revla</span>
+    <h1 class="fade-up">Hablemos.<br><em>Respondemos.</em></h1>
+    <p class="fade-up" style="transition-delay:.15s">Tienes preguntas, nosotras también. Escríbenos y te respondemos lo antes posible.</p>
+  </div>
+</header>
+
+<!-- MAIN CONTACT -->
+<div class="contact-main">
+
+  <!-- SIDEBAR -->
+  <aside class="contact-sidebar fade-up">
+    <span class="eyebrow">Canales</span>
+    <h2>¿Dónde<br>encontrarnos?</h2>
+    <div class="contact-items">
+
+      <div class="contact-item">
+        <div class="contact-item-icon">
+          <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div class="contact-item-body">
+          <h4>WhatsApp</h4>
+          <p>Respuesta rápida, sin vueltas.<br><a href="https://wa.me/56973841513" target="_blank">+56 9 7384 1513</a></p>
+        </div>
+      </div>
+
+      <div class="contact-item">
+        <div class="contact-item-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div class="contact-item-body">
+          <h4>Correo electrónico</h4>
+          <p>Para consultas más extensas.<br><a href="mailto:hola@revla.cl">hola@revla.cl</a></p>
+        </div>
+      </div>
+
+      <div class="contact-item">
+        <div class="contact-item-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </div>
+        <div class="contact-item-body">
+          <h4>Instagram</h4>
+          <p>Novedades, detrás de cámaras y DMs.<br><a href="https://instagram.com/revla.cl" target="_blank">@revla.cl</a></p>
+        </div>
+      </div>
+
+      <div class="contact-item">
+        <div class="contact-item-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="contact-item-body">
+          <h4>Estudio Espacio Vuela</h4>
+          <p>Dr. Luis Middleton 1638,<br>Providencia, Santiago</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="social-section">
+      <h4>Síguenos</h4>
+      <div class="social-row">
+        <a href="https://instagram.com/revla.cl" target="_blank" class="social-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          Instagram
+        </a>
+        <a href="https://wa.me/56973841513" target="_blank" class="social-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+      </div>
+    </div>
+
+    <div class="sidebar-note">
+      <p>⏱ Respondemos dentro de las <strong>24 horas hábiles</strong>. Para consultas urgentes, escríbenos por WhatsApp o Instagram.</p>
+    </div>
+  </aside>
+
+  <!-- FORM -->
+  <div class="contact-form-wrap fade-up" style="transition-delay:.1s">
+    <span class="eyebrow">Escríbenos</span>
+    <h2>¿En qué te<br>podemos ayudar?</h2>
+
+    <!-- TOPIC SELECTOR -->
+    <div class="topic-row" id="topic-row">
+      <button class="topic-pill active" onclick="selectTopic(this, 'Consulta general')">Consulta general</button>
+      <button class="topic-pill" onclick="selectTopic(this, 'Sobre un producto')">Sobre un producto</button>
+      <button class="topic-pill" onclick="selectTopic(this, 'Envíos y compras')">Envíos y compras</button>
+      <button class="topic-pill" onclick="selectTopic(this, 'Colaboración')">Colaboración</button>
+      <button class="topic-pill" onclick="selectTopic(this, 'Otro')">Otro</button>
+    </div>
+
+    <form id="contact-form" onsubmit="submitForm(event)">
+      <input type="hidden" id="topic-hidden" value="Consulta general">
+      <div class="form-row-2">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" id="f-nombre" placeholder="Tu nombre" required>
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" id="f-email" placeholder="tu@correo.com" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Asunto</label>
+        <input type="text" id="f-asunto" placeholder="¿De qué se trata?">
+      </div>
+      <div class="form-group">
+        <label>Mensaje</label>
+        <textarea id="f-mensaje" placeholder="Cuéntanos con detalle…" required></textarea>
+      </div>
+      <button type="submit" class="btn-submit" id="btn-submit">
+        Enviar mensaje
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <div class="form-msg" id="form-msg"></div>
+    </form>
+  </div>
+
+</div>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="faq-inner">
+    <div class="faq-header fade-up">
+      <span class="eyebrow">FAQ</span>
+      <h2>Preguntas<br><em>frecuentes</em></h2>
+    </div>
+    <div class="faq-list">
+
+      <div class="faq-item fade-up">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <h4>¿Cuándo llega la primera cápsula?</h4>
+          <div class="faq-icon"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        </button>
+        <div class="faq-answer">
+          <p>La Cápsula 01 "Sin molde" está en desarrollo. Puedes dejar tu correo en la página de colecciones para ser de las primeras en saber cuándo se lanza.</p>
+        </div>
+      </div>
+
+      <div class="faq-item fade-up" style="transition-delay:.05s">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <h4>¿En qué tallas llegan las prendas?</h4>
+          <div class="faq-icon"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        </button>
+        <div class="faq-answer">
+          <p>Nuestras prendas van de XS a XXL. Al ser modulables, con amarres y ajustes, se adaptan a un rango de cuerpos más amplio que una talla estándar. Publicaremos una guía de tallaje detallada junto con la primera cápsula.</p>
+        </div>
+      </div>
+
+      <div class="faq-item fade-up" style="transition-delay:.1s">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <h4>¿Hacen envíos a todo Chile?</h4>
+          <div class="faq-icon"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        </button>
+        <div class="faq-answer">
+          <p>Sí. Al lanzar la primera cápsula, haremos envíos a todo Chile. También podrás retirar en Espacio Vuela, Dr. Luis Middleton 1638, Providencia.</p>
+        </div>
+      </div>
+
+      <div class="faq-item fade-up" style="transition-delay:.15s">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <h4>¿Qué significa que la ropa es "modulable"?</h4>
+          <div class="faq-icon"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        </button>
+        <div class="faq-answer">
+          <p>Que la misma prenda puede usarse de más de una forma. Un short puede convertirse en calza ajustando sus amarres. Un top puede abrirse o cerrarse según el día, el ánimo o la disciplina. Tú decides la forma — no la prenda.</p>
+        </div>
+      </div>
+
+      <div class="faq-item fade-up" style="transition-delay:.2s">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <h4>¿Puedo comprar si no tengo cuenta en Espacio Vuela?</h4>
+          <div class="faq-icon"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        </button>
+        <div class="faq-answer">
+          <p>Sí, Revla es una marca independiente. Puedes crear tu cuenta directamente en revla.cl. En el futuro planeamos integrar el login de Espacio Vuela para que uses las mismas credenciales.</p>
+        </div>
+      </div>
+
+      <div class="faq-item fade-up" style="transition-delay:.25s">
+        <button class="faq-trigger" onclick="toggleFaq(this)">
+          <h4>¿Aceptan devoluciones o cambios?</h4>
+          <div class="faq-icon"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        </button>
+        <div class="faq-answer">
+          <p>Publicaremos la política de cambios y devoluciones completa antes del lanzamiento de la primera cápsula. El bienestar de quien compra es parte de nuestra filosofía, así que sí contemplamos cambios.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- STRIP -->
+<div class="vuela-strip">
+  <svg width="16" height="16" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+  <p>Revla es parte del universo</p>
+  <a href="https://espaciovuela.cl" target="_blank">Espacio Vuela →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand-logo">rev<em>la</em></div>
+      <p class="footer-tagline">Ropa que obedece.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Tienda</h4>
+      <ul>
+        <li><a href="colecciones.html">Colecciones</a></li>
+        <li><a href="#">Novedades</a></li>
+        <li><a href="#">Tallaje</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Revla</h4>
+      <ul>
+        <li><a href="sobre.html">Sobre nosotras</a></li>
+        <li><a href="contacto.html">Contacto</a></li>
+        <li><a href="https://espaciovuela.cl" target="_blank">Espacio Vuela</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Ayuda</h4>
+      <ul>
+        <li><a href="#">Envíos</a></li>
+        <li><a href="#">Devoluciones</a></li>
+        <li><a href="login.html">Mi cuenta</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Revla. Todos los derechos reservados.</span>
+    <span>Una marca de <a href="https://espaciovuela.cl" target="_blank">Espacio Vuela</a></span>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll
+  window.addEventListener('scroll', () => {
+    document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
+  });
+  // Fade up
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+  // Mobile menu
+  document.querySelectorAll('#nav-menu a').forEach(a => {
+    a.addEventListener('click', () => document.getElementById('nav-menu').classList.remove('nav-open'));
+  });
+
+  // Topic pills
+  function selectTopic(btn, val) {
+    document.querySelectorAll('.topic-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('topic-hidden').value = val;
+  }
+
+  // FAQ accordion
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const answer = item.querySelector('.faq-answer');
+    const isOpen = item.classList.contains('open');
+    // close all
+    document.querySelectorAll('.faq-item.open').forEach(i => {
+      i.classList.remove('open');
+      i.querySelector('.faq-answer').style.maxHeight = '0';
+    });
+    if (!isOpen) {
+      item.classList.add('open');
+      answer.style.maxHeight = answer.scrollHeight + 'px';
+    }
+  }
+
+  // Form submit
+  function submitForm(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    btn.textContent = 'Enviando…';
+    // Simulación — aquí conectar con backend / EmailJS / Formspree
+    setTimeout(() => {
+      document.getElementById('contact-form').style.display = 'none';
+      const msg = document.getElementById('form-msg');
+      msg.className = 'form-msg success';
+      msg.innerHTML = '✓ ¡Mensaje enviado! Te respondemos dentro de las próximas 24 horas.';
+    }, 1200);
+  }
+</script>
+</body>
+</html>
