@@ -355,7 +355,7 @@
       var precioItem = parseInt(String(item.precio).replace(/\D/g, '')) || 0;
       return '<div class="item-row">' +
         '<div class="item-icon"><svg width="20" height="20" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>' +
-        '<div><p class="item-nombre">' + item.nombre + '</p><p class="item-sub">Talla ' + item.talla + ' · ' + item.categoria + ' · x' + item.cantidad + '</p></div>' +
+        '<div><p class="item-nombre">' + item.nombre + '</p><p class="item-sub">Talla ' + item.talla + (item.color ? ' · ' + item.color : '') + ' · ' + item.categoria + ' · x' + item.cantidad + '</p></div>' +
         '<p class="item-precio">' + formatPrecio(precioItem * item.cantidad) + '</p>' +
       '</div>';
     }).join('');

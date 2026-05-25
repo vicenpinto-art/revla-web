@@ -292,6 +292,25 @@
     .talla-btn:hover { border-color: var(--lila); color: var(--lila); }
     .talla-btn.active { background: var(--lila); border-color: var(--lila); color: white; }
     .talla-btn.agotada { opacity: .35; cursor: not-allowed; text-decoration: line-through; }
+    /* ── COLORES ── */
+    .color-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--gray); margin-bottom: 12px;
+    }
+    .color-label span { color: var(--black); font-weight: 700; text-transform: none; letter-spacing: 0; }
+    .colores { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+    .color-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer; transition: all .2s;
+      outline: 2px solid transparent; outline-offset: 2px;
+    }
+    .color-btn:hover { outline-color: var(--lila-pale); transform: scale(1.1); }
+    .color-btn.active { outline-color: var(--lila); transform: scale(1.1); }
+    .color-btn[title="Negro"] { background: #1a1718; }
+    .color-btn[title="Morado oscuro"] { background: #3d2670; }
+    .color-btn[title="Rosa pastel"] { background: #f4b8c8; }
+    .color-btn[title="Café"] { background: #7a4f2e; }
 
     /* BOTONES COMPRA */
     .compra-btns { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
@@ -573,6 +592,17 @@
       </div>
     </div>
 
+    <!-- COLOR -->
+    <div style="margin-bottom:28px;">
+      <div class="color-label">Color <span id="color-selected"></span></div>
+      <div class="colores">
+        <button class="color-btn" title="Negro" onclick="seleccionarColor(this, 'Negro')"></button>
+        <button class="color-btn" title="Morado oscuro" onclick="seleccionarColor(this, 'Morado oscuro')"></button>
+        <button class="color-btn" title="Rosa pastel" onclick="seleccionarColor(this, 'Rosa pastel')"></button>
+        <button class="color-btn" title="Café" onclick="seleccionarColor(this, 'Café')"></button>
+      </div>
+    </div>
+
     <!-- BOTONES -->
     <div class="compra-btns">
       <button class="btn-agregar" id="btn-agregar" onclick="agregarAlCarrito()">
@@ -734,6 +764,7 @@
   // ── CARRITO STATE ──
   let carrito = JSON.parse(localStorage.getItem('revla-carrito') || '[]');
   let tallaSeleccionada = null;
+  let colorSeleccionado = null;
 
   // ── NAV ──
   window.addEventListener('scroll', () => {
@@ -749,6 +780,12 @@
     btn.classList.add('active');
     tallaSeleccionada = talla;
     document.getElementById('talla-selected').textContent = '— ' + talla;
+  }
+  function seleccionarColor(btn, color) {
+    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    colorSeleccionado = color;
+    document.getElementById('color-selected').textContent = '— ' + color;
   }
 
   // ── CARRITO ──
@@ -792,7 +829,7 @@
         <div class="cart-item-info">
           <p class="ci-sub">${item.categoria}</p>
           <p class="ci-name">${item.nombre}</p>
-          <p class="ci-talla">Talla: ${item.talla}</p>
+          <p class="ci-talla">Talla: ${item.talla}${item.color ? " · " + item.color : ""}</p>
           <div class="cart-item-bottom">
             <span class="ci-price">${item.precio}</span>
             <div class="ci-qty">
@@ -860,12 +897,13 @@
         nombre: 'El acordeón',
         categoria: 'Top',
         talla: tallaSeleccionada,
+        color: colorSeleccionado,
         precio: '$102',
         cantidad: 1
       });
     }
     guardarCarrito();
-    mostrarToast('✓ Agregado al carrito — talla ' + tallaSeleccionada);
+    mostrarToast('✓ Agregado — talla ' + tallaSeleccionada + ' · ' + colorSeleccionado);
     setTimeout(abrirCarrito, 600);
   }
 
