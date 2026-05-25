@@ -14,7 +14,6 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Outfit', sans-serif; background: var(--nude); color: var(--black); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
-    /* NAV */
     nav {
       background: rgba(255,255,255,0.96); backdrop-filter: blur(16px);
       border-bottom: 1px solid rgba(161,131,255,0.15);
@@ -26,7 +25,6 @@
     .nav-back { font-size: 14px; color: var(--gray); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color .2s; }
     .nav-back:hover { color: var(--lila); }
 
-    /* LAYOUT */
     .checkout-wrap {
       max-width: 1000px; margin: 0 auto;
       padding: 48px 24px 80px;
@@ -41,10 +39,9 @@
     h1 em { font-style: italic; color: var(--lila); }
     .subtitle { color: var(--gray); font-size: 15px; margin-bottom: 32px; }
 
-    /* CARD */
     .card { background: white; border-radius: 20px; padding: 28px; box-shadow: 0 2px 20px rgba(0,0,0,.06); }
+    .card + .card { margin-top: 20px; }
 
-    /* ITEMS */
     .items-lista { display: flex; flex-direction: column; gap: 16px; }
     .item-row {
       display: grid; grid-template-columns: 48px 1fr auto;
@@ -52,49 +49,63 @@
       padding-bottom: 16px; border-bottom: 1px solid var(--lila-pale);
     }
     .item-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .item-icon {
-      width: 48px; height: 48px; border-radius: 12px;
-      background: var(--lila-ghost); display: flex; align-items: center; justify-content: center;
-    }
+    .item-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--lila-ghost); display: flex; align-items: center; justify-content: center; }
     .item-icon svg { stroke: var(--lila); }
     .item-nombre { font-weight: 600; font-size: 14px; }
     .item-sub { font-size: 12px; color: var(--gray); margin-top: 2px; }
     .item-precio { font-weight: 700; font-size: 15px; color: var(--black); white-space: nowrap; }
 
-    /* CARRITO VACÍO */
-    .carrito-vacio {
-      text-align: center; padding: 48px 24px;
-    }
-    .carrito-vacio .icon-grande {
-      width: 72px; height: 72px; border-radius: 50%;
-      background: var(--lila-ghost); display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 20px;
-    }
+    .carrito-vacio { text-align: center; padding: 48px 24px; }
+    .carrito-vacio .icon-grande { width: 72px; height: 72px; border-radius: 50%; background: var(--lila-ghost); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
     .carrito-vacio h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
     .carrito-vacio p { color: var(--gray); font-size: 14px; margin-bottom: 24px; }
-    .btn-volver {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 12px 28px; border-radius: 100px;
-      background: var(--lila); color: white;
-      font-weight: 600; font-size: 14px; text-decoration: none;
-      transition: transform .2s, box-shadow .2s;
-    }
+    .btn-volver { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 100px; background: var(--lila); color: white; font-weight: 600; font-size: 14px; text-decoration: none; transition: transform .2s, box-shadow .2s; }
     .btn-volver:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(161,131,255,.4); }
 
-    /* RESUMEN LATERAL */
+    /* FORMULARIO DATOS */
+    .form-titulo { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-full { grid-column: 1 / -1; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 12px; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .05em; }
+    .form-group input, .form-group select {
+      padding: 11px 14px; border-radius: 12px;
+      border: 1.5px solid var(--lila-pale);
+      font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--black);
+      background: white; outline: none; transition: border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--lila); }
+    .form-group input.error { border-color: #f87171; }
+    @media (max-width: 480px) { .form-grid { grid-template-columns: 1fr; } .form-full { grid-column: 1; } }
+
+    /* ENVÍO */
+    .envio-opciones { display: flex; flex-direction: column; gap: 10px; }
+    .envio-opcion {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; border-radius: 12px;
+      border: 1.5px solid var(--lila-pale); cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .envio-opcion:hover { border-color: var(--lila-soft); }
+    .envio-opcion.activa { border-color: var(--lila); background: var(--lila-ghost); }
+    .envio-opcion input[type="radio"] { accent-color: var(--lila); width: 16px; height: 16px; }
+    .envio-opcion-info { flex: 1; }
+    .envio-opcion-nombre { font-size: 14px; font-weight: 600; }
+    .envio-opcion-desc { font-size: 12px; color: var(--gray); margin-top: 2px; }
+    .envio-opcion-precio { font-size: 14px; font-weight: 700; color: var(--lila); }
+    #campos-envio { margin-top: 14px; display: none; }
+
+    /* RESUMEN */
     .resumen { position: sticky; top: 90px; }
     .resumen .card { display: flex; flex-direction: column; gap: 20px; }
     .resumen-titulo { font-size: 18px; font-weight: 700; }
-
     .linea-resumen { display: flex; justify-content: space-between; font-size: 14px; color: var(--gray); }
     .linea-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; padding-top: 16px; border-top: 2px solid var(--lila-pale); }
-
     .tags-envio { display: flex; flex-wrap: wrap; gap: 6px; }
     .tag { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 100px; }
     .tag-lila { background: rgba(161,131,255,.12); color: var(--lila); border: 1px solid rgba(161,131,255,.3); }
     .tag-nude { background: var(--nude2); color: #7a6a5a; }
 
-    /* BOTÓN PAGAR */
     .btn-pagar {
       width: 100%; padding: 16px; border-radius: 100px;
       background: var(--lila); color: white; border: none; cursor: pointer;
@@ -107,35 +118,16 @@
     .btn-pagar:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
     .btn-pagar.cargando { background: var(--lila-soft); }
 
-    /* SPINNER */
-    .spinner {
-      width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.4);
-      border-top-color: white; border-radius: 50%;
-      animation: spin .7s linear infinite; display: none;
-    }
+    .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
     .btn-pagar.cargando .spinner { display: block; }
     .btn-pagar.cargando .btn-texto { display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* LOGO MP */
-    .mp-badge {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      font-size: 12px; color: var(--gray);
-    }
-    .mp-badge img { height: 18px; }
-
-    /* MÉTODOS */
+    .mp-badge { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: var(--gray); }
     .metodos { display: flex; gap: 8px; flex-wrap: wrap; }
-    .metodo-chip {
-      font-size: 11px; padding: 4px 10px; border-radius: 6px;
-      border: 1px solid var(--lila-pale); color: var(--gray); background: var(--lila-ghost);
-    }
+    .metodo-chip { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--lila-pale); color: var(--gray); background: var(--lila-ghost); }
 
-    /* ERROR */
-    .error-box {
-      background: #fff5f5; border: 1px solid #fecaca; border-radius: 12px;
-      padding: 14px 16px; font-size: 13px; color: #b91c1c; display: none;
-    }
+    .error-box { background: #fff5f5; border: 1px solid #fecaca; border-radius: 12px; padding: 14px 16px; font-size: 13px; color: #b91c1c; display: none; }
     .error-box.visible { display: block; }
   </style>
 </head>
@@ -151,15 +143,12 @@
 
 <div class="checkout-wrap">
 
-  <!-- COLUMNA IZQUIERDA: items -->
   <div>
     <h1>Tu <em>pedido</em></h1>
     <p class="subtitle">Revisá los productos antes de pagar.</p>
 
     <div class="card">
-      <!-- Carrito con productos -->
       <div id="items-lista" class="items-lista"></div>
-      <!-- Estado vacío -->
       <div id="carrito-vacio" class="carrito-vacio" style="display:none">
         <div class="icon-grande">
           <svg width="28" height="28" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -169,16 +158,97 @@
         <a class="btn-volver" href="colecciones.html">← Ver colecciones</a>
       </div>
     </div>
+
+    <!-- DATOS DEL COMPRADOR -->
+    <div class="card" id="card-datos">
+      <p class="form-titulo">Tus datos</p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" id="campo-nombre" placeholder="Tu nombre" />
+        </div>
+        <div class="form-group">
+          <label>Apellido</label>
+          <input type="text" id="campo-apellido" placeholder="Tu apellido" />
+        </div>
+        <div class="form-group form-full">
+          <label>Correo electrónico</label>
+          <input type="email" id="campo-email" placeholder="tu@correo.com" />
+        </div>
+        <div class="form-group form-full">
+          <label>Teléfono</label>
+          <input type="tel" id="campo-telefono" placeholder="+56 9 1234 5678" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ENVÍO -->
+    <div class="card" id="card-envio">
+      <p class="form-titulo">Envío</p>
+      <div class="envio-opciones">
+        <label class="envio-opcion activa" id="opcion-retiro">
+          <input type="radio" name="envio" value="retiro" checked onchange="cambiarEnvio('retiro')" />
+          <div class="envio-opcion-info">
+            <p class="envio-opcion-nombre">Retiro en Espacio Vuela</p>
+            <p class="envio-opcion-desc">Nos coordinamos por correo para la entrega</p>
+          </div>
+          <span class="envio-opcion-precio">Gratis</span>
+        </label>
+        <label class="envio-opcion" id="opcion-despacho">
+          <input type="radio" name="envio" value="despacho" onchange="cambiarEnvio('despacho')" />
+          <div class="envio-opcion-info">
+            <p class="envio-opcion-nombre">Despacho a domicilio</p>
+            <p class="envio-opcion-desc">Bluexpress — entrega en 2-5 días hábiles</p>
+          </div>
+          <span class="envio-opcion-precio" id="precio-envio">A calcular</span>
+        </label>
+      </div>
+
+      <div id="campos-envio">
+        <div class="form-grid" style="margin-top:14px">
+          <div class="form-group form-full">
+            <label>Dirección</label>
+            <input type="text" id="campo-direccion" placeholder="Calle y número" />
+          </div>
+          <div class="form-group">
+            <label>Ciudad</label>
+            <input type="text" id="campo-ciudad" placeholder="Santiago" />
+          </div>
+          <div class="form-group">
+            <label>Región</label>
+            <select id="campo-region">
+              <option value="">Selecciona...</option>
+              <option>Región Metropolitana</option>
+              <option>Valparaíso</option>
+              <option>Biobío</option>
+              <option>La Araucanía</option>
+              <option>Los Lagos</option>
+              <option>O'Higgins</option>
+              <option>Maule</option>
+              <option>Coquimbo</option>
+              <option>Antofagasta</option>
+              <option>Atacama</option>
+              <option>Tarapacá</option>
+              <option>Arica y Parinacota</option>
+              <option>Los Ríos</option>
+              <option>Aysén</option>
+              <option>Magallanes</option>
+              <option>Ñuble</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- COLUMNA DERECHA: resumen y pago -->
+  <!-- RESUMEN -->
   <div class="resumen">
     <div class="card">
       <p class="resumen-titulo">Resumen del pedido</p>
 
       <div>
         <div class="linea-resumen"><span id="items-count">0 productos</span><span id="subtotal-val">$0</span></div>
-        <div class="linea-resumen" style="margin-top:8px"><span>Envío</span><span>Por confirmar</span></div>
+        <div class="linea-resumen" style="margin-top:8px"><span>Envío</span><span id="envio-val">Gratis</span></div>
       </div>
 
       <div class="linea-total"><span>Total</span><span id="total-val">$0</span></div>
@@ -220,91 +290,149 @@
 </div>
 
 <script>
-  // ─── Lee el carrito guardado en localStorage ───
   var carrito = JSON.parse(localStorage.getItem('revla-carrito') || '[]');
+  var costoEnvio = 0;
 
   function formatPrecio(num) {
     return '$' + num.toLocaleString('es-CL');
   }
 
-  function calcularTotal() {
+  function calcularSubtotal() {
     return carrito.reduce(function(sum, item) {
       var p = parseInt(String(item.precio).replace(/\D/g, '')) || 0;
       return sum + p * item.cantidad;
     }, 0);
   }
 
+  function actualizarResumen() {
+    var subtotal = calcularSubtotal();
+    var total = subtotal + costoEnvio;
+    var totalItems = carrito.reduce(function(s, i) { return s + i.cantidad; }, 0);
+    document.getElementById('items-count').textContent = totalItems + (totalItems === 1 ? ' producto' : ' productos');
+    document.getElementById('subtotal-val').textContent = formatPrecio(subtotal);
+    document.getElementById('envio-val').textContent = costoEnvio === 0 ? 'Gratis' : formatPrecio(costoEnvio);
+    document.getElementById('total-val').textContent = formatPrecio(total);
+  }
+
+  function cambiarEnvio(tipo) {
+    var opcionRetiro = document.getElementById('opcion-retiro');
+    var opcionDespacho = document.getElementById('opcion-despacho');
+    var camposEnvio = document.getElementById('campos-envio');
+
+    if (tipo === 'retiro') {
+      opcionRetiro.classList.add('activa');
+      opcionDespacho.classList.remove('activa');
+      camposEnvio.style.display = 'none';
+      costoEnvio = 0;
+    } else {
+      opcionRetiro.classList.remove('activa');
+      opcionDespacho.classList.add('activa');
+      camposEnvio.style.display = 'block';
+      costoEnvio = 4990;
+      document.getElementById('precio-envio').textContent = formatPrecio(costoEnvio);
+    }
+    actualizarResumen();
+  }
+
   function renderItems() {
     var lista = document.getElementById('items-lista');
     var vacio = document.getElementById('carrito-vacio');
     var btnPagar = document.getElementById('btn-pagar');
+    var cardDatos = document.getElementById('card-datos');
+    var cardEnvio = document.getElementById('card-envio');
 
     if (carrito.length === 0) {
       lista.style.display = 'none';
       vacio.style.display = 'block';
       btnPagar.disabled = true;
-      document.getElementById('items-count').textContent = '0 productos';
-      document.getElementById('subtotal-val').textContent = '$0';
-      document.getElementById('total-val').textContent = '$0';
+      cardDatos.style.display = 'none';
+      cardEnvio.style.display = 'none';
+      actualizarResumen();
       return;
     }
-
-    var totalItems = carrito.reduce(function(s, i) { return s + i.cantidad; }, 0);
-    var total = calcularTotal();
-
-    document.getElementById('items-count').textContent = totalItems + (totalItems === 1 ? ' producto' : ' productos');
-    document.getElementById('subtotal-val').textContent = formatPrecio(total);
-    document.getElementById('total-val').textContent = formatPrecio(total);
 
     lista.innerHTML = carrito.map(function(item) {
       var precioItem = parseInt(String(item.precio).replace(/\D/g, '')) || 0;
       return '<div class="item-row">' +
-        '<div class="item-icon">' +
-          '<svg width="20" height="20" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg>' +
-        '</div>' +
-        '<div>' +
-          '<p class="item-nombre">' + item.nombre + '</p>' +
-          '<p class="item-sub">Talla ' + item.talla + ' · ' + item.categoria + ' · x' + item.cantidad + '</p>' +
-        '</div>' +
+        '<div class="item-icon"><svg width="20" height="20" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>' +
+        '<div><p class="item-nombre">' + item.nombre + '</p><p class="item-sub">Talla ' + item.talla + ' · ' + item.categoria + ' · x' + item.cantidad + '</p></div>' +
         '<p class="item-precio">' + formatPrecio(precioItem * item.cantidad) + '</p>' +
       '</div>';
     }).join('');
+
+    actualizarResumen();
   }
 
-  // ─── Llama al servidor y redirige a MP ───
+  function validarFormulario() {
+    var nombre = document.getElementById('campo-nombre').value.trim();
+    var apellido = document.getElementById('campo-apellido').value.trim();
+    var email = document.getElementById('campo-email').value.trim();
+    var envio = document.querySelector('input[name="envio"]:checked').value;
+    var ok = true;
+
+    ['campo-nombre','campo-apellido','campo-email'].forEach(function(id) {
+      document.getElementById(id).classList.remove('error');
+    });
+
+    if (!nombre) { document.getElementById('campo-nombre').classList.add('error'); ok = false; }
+    if (!apellido) { document.getElementById('campo-apellido').classList.add('error'); ok = false; }
+    if (!email || !email.includes('@')) { document.getElementById('campo-email').classList.add('error'); ok = false; }
+
+    if (envio === 'despacho') {
+      var direccion = document.getElementById('campo-direccion').value.trim();
+      var ciudad = document.getElementById('campo-ciudad').value.trim();
+      var region = document.getElementById('campo-region').value;
+      if (!direccion) { document.getElementById('campo-direccion').classList.add('error'); ok = false; }
+      if (!ciudad) { document.getElementById('campo-ciudad').classList.add('error'); ok = false; }
+      if (!region) { document.getElementById('campo-region').classList.add('error'); ok = false; }
+    }
+
+    return ok;
+  }
+
   async function irAPagar() {
+    if (!validarFormulario()) return;
+
     var btn = document.getElementById('btn-pagar');
     var errorBox = document.getElementById('error-pago');
+    var envio = document.querySelector('input[name="envio"]:checked').value;
+
+    var datosComprador = {
+      nombre: document.getElementById('campo-nombre').value.trim(),
+      apellido: document.getElementById('campo-apellido').value.trim(),
+      email: document.getElementById('campo-email').value.trim(),
+      telefono: document.getElementById('campo-telefono').value.trim(),
+      tipoEnvio: envio,
+      costoEnvio: costoEnvio,
+      direccion: envio === 'despacho' ? document.getElementById('campo-direccion').value.trim() : '',
+      ciudad: envio === 'despacho' ? document.getElementById('campo-ciudad').value.trim() : '',
+      region: envio === 'despacho' ? document.getElementById('campo-region').value : ''
+    };
 
     btn.disabled = true;
     btn.classList.add('cargando');
     errorBox.classList.remove('visible');
 
     try {
-      // ⚠️  Cambia esta URL a la de tu servidor cuando lo despliegues
-      var urlServidor = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3000/crear-preferencia'
-  : 'https://revla.cl/crear-preferencia';
+      var urlServidor = window.location.hostname === 'localhost'
+        ? 'http://localhost:3000/crear-preferencia'
+        : 'https://revla.cl/crear-preferencia';
 
       var resp = await fetch(urlServidor, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ carrito: carrito })
+        body: JSON.stringify({ carrito: carrito, comprador: datosComprador })
       });
 
       if (!resp.ok) throw new Error('Error del servidor');
       var data = await resp.json();
 
-      // En pruebas usa sandbox_init_point, en producción init_point
       var urlPago = window.location.hostname === 'localhost'
-  ? data.sandbox_init_point
-  : data.init_point;
+        ? data.sandbox_init_point
+        : data.init_point;
       if (!urlPago) throw new Error('No se recibió URL de pago');
 
-      // Vacía el carrito antes de ir a pagar
       localStorage.removeItem('revla-carrito');
-
-      // Redirige a MercadoPago
       window.location.href = urlPago;
 
     } catch (err) {
