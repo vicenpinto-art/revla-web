@@ -859,7 +859,7 @@
         nombre: 'El convertible',
         categoria: 'Short · Calza',
         talla: tallaSeleccionada,
-        precio: 'Por confirmar',
+        precio: '$101',
         cantidad: 1
       });
     }
@@ -876,7 +876,8 @@
   }
 
   function irCheckout() {
-    mostrarToast('Checkout con MercadoPago — próximamente');
+    if(carrito.length === 0){ mostrarToast('Tu carrito está vacío'); return; }
+    window.location.href = 'checkout.html';
   }
 
   // ── ACCORDION DETALLES ──

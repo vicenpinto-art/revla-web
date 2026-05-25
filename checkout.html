@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — Revla</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --lila: #a183ff; --lila-soft: #b9a2ff; --lila-pale: #e0d6ff;
+      --lila-ghost: #f2eeff; --nude: #f5efe8; --nude2: #ede4d9;
+      --black: #1a1718; --gray: #6b6570; --white: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; background: var(--nude); color: var(--black); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* NAV */
+    nav {
+      background: rgba(255,255,255,0.96); backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(161,131,255,0.15);
+      padding: 18px 40px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; text-decoration: none; color: var(--black); }
+    .nav-logo em { font-style: italic; color: var(--lila); }
+    .nav-back { font-size: 14px; color: var(--gray); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color .2s; }
+    .nav-back:hover { color: var(--lila); }
+
+    /* LAYOUT */
+    .checkout-wrap {
+      max-width: 1000px; margin: 0 auto;
+      padding: 48px 24px 80px;
+      display: grid; grid-template-columns: 1fr 380px; gap: 32px;
+    }
+    @media (max-width: 720px) {
+      .checkout-wrap { grid-template-columns: 1fr; padding: 32px 16px 60px; }
+      nav { padding: 14px 20px; }
+    }
+
+    h1 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+    h1 em { font-style: italic; color: var(--lila); }
+    .subtitle { color: var(--gray); font-size: 15px; margin-bottom: 32px; }
+
+    /* CARD */
+    .card { background: white; border-radius: 20px; padding: 28px; box-shadow: 0 2px 20px rgba(0,0,0,.06); }
+
+    /* ITEMS */
+    .items-lista { display: flex; flex-direction: column; gap: 16px; }
+    .item-row {
+      display: grid; grid-template-columns: 48px 1fr auto;
+      gap: 14px; align-items: center;
+      padding-bottom: 16px; border-bottom: 1px solid var(--lila-pale);
+    }
+    .item-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .item-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: var(--lila-ghost); display: flex; align-items: center; justify-content: center;
+    }
+    .item-icon svg { stroke: var(--lila); }
+    .item-nombre { font-weight: 600; font-size: 14px; }
+    .item-sub { font-size: 12px; color: var(--gray); margin-top: 2px; }
+    .item-precio { font-weight: 700; font-size: 15px; color: var(--black); white-space: nowrap; }
+
+    /* CARRITO VACÍO */
+    .carrito-vacio {
+      text-align: center; padding: 48px 24px;
+    }
+    .carrito-vacio .icon-grande {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--lila-ghost); display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .carrito-vacio h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    .carrito-vacio p { color: var(--gray); font-size: 14px; margin-bottom: 24px; }
+    .btn-volver {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 28px; border-radius: 100px;
+      background: var(--lila); color: white;
+      font-weight: 600; font-size: 14px; text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-volver:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(161,131,255,.4); }
+
+    /* RESUMEN LATERAL */
+    .resumen { position: sticky; top: 90px; }
+    .resumen .card { display: flex; flex-direction: column; gap: 20px; }
+    .resumen-titulo { font-size: 18px; font-weight: 700; }
+
+    .linea-resumen { display: flex; justify-content: space-between; font-size: 14px; color: var(--gray); }
+    .linea-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; padding-top: 16px; border-top: 2px solid var(--lila-pale); }
+
+    .tags-envio { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 100px; }
+    .tag-lila { background: rgba(161,131,255,.12); color: var(--lila); border: 1px solid rgba(161,131,255,.3); }
+    .tag-nude { background: var(--nude2); color: #7a6a5a; }
+
+    /* BOTÓN PAGAR */
+    .btn-pagar {
+      width: 100%; padding: 16px; border-radius: 100px;
+      background: var(--lila); color: white; border: none; cursor: pointer;
+      font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: transform .2s, box-shadow .2s, background .2s;
+      box-shadow: 0 4px 20px rgba(161,131,255,.4);
+    }
+    .btn-pagar:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(161,131,255,.55); }
+    .btn-pagar:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+    .btn-pagar.cargando { background: var(--lila-soft); }
+
+    /* SPINNER */
+    .spinner {
+      width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.4);
+      border-top-color: white; border-radius: 50%;
+      animation: spin .7s linear infinite; display: none;
+    }
+    .btn-pagar.cargando .spinner { display: block; }
+    .btn-pagar.cargando .btn-texto { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* LOGO MP */
+    .mp-badge {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 12px; color: var(--gray);
+    }
+    .mp-badge img { height: 18px; }
+
+    /* MÉTODOS */
+    .metodos { display: flex; gap: 8px; flex-wrap: wrap; }
+    .metodo-chip {
+      font-size: 11px; padding: 4px 10px; border-radius: 6px;
+      border: 1px solid var(--lila-pale); color: var(--gray); background: var(--lila-ghost);
+    }
+
+    /* ERROR */
+    .error-box {
+      background: #fff5f5; border: 1px solid #fecaca; border-radius: 12px;
+      padding: 14px 16px; font-size: 13px; color: #b91c1c; display: none;
+    }
+    .error-box.visible { display: block; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">rev<em>la</em></a>
+  <a class="nav-back" href="index.html">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Seguir comprando
+  </a>
+</nav>
+
+<div class="checkout-wrap">
+
+  <!-- COLUMNA IZQUIERDA: items -->
+  <div>
+    <h1>Tu <em>pedido</em></h1>
+    <p class="subtitle">Revisá los productos antes de pagar.</p>
+
+    <div class="card">
+      <!-- Carrito con productos -->
+      <div id="items-lista" class="items-lista"></div>
+      <!-- Estado vacío -->
+      <div id="carrito-vacio" class="carrito-vacio" style="display:none">
+        <div class="icon-grande">
+          <svg width="28" height="28" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </div>
+        <h3>Tu carrito está vacío</h3>
+        <p>Agrega productos desde las colecciones para continuar.</p>
+        <a class="btn-volver" href="colecciones.html">← Ver colecciones</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLUMNA DERECHA: resumen y pago -->
+  <div class="resumen">
+    <div class="card">
+      <p class="resumen-titulo">Resumen del pedido</p>
+
+      <div>
+        <div class="linea-resumen"><span id="items-count">0 productos</span><span id="subtotal-val">$0</span></div>
+        <div class="linea-resumen" style="margin-top:8px"><span>Envío</span><span>Por confirmar</span></div>
+      </div>
+
+      <div class="linea-total"><span>Total</span><span id="total-val">$0</span></div>
+
+      <div>
+        <p style="font-size:12px;color:var(--gray);margin-bottom:8px;">Métodos de pago aceptados</p>
+        <div class="metodos">
+          <span class="metodo-chip">Débito</span>
+          <span class="metodo-chip">Crédito</span>
+          <span class="metodo-chip">Transferencia</span>
+          <span class="metodo-chip">WebPay</span>
+        </div>
+      </div>
+
+      <div class="tags-envio">
+        <span class="tag tag-lila">🔒 Pago seguro</span>
+        <span class="tag tag-nude">Chile 🇨🇱</span>
+      </div>
+
+      <div id="error-pago" class="error-box">
+        No se pudo conectar con el servidor de pago. Intenta de nuevo.
+      </div>
+
+      <button class="btn-pagar" id="btn-pagar" onclick="irAPagar()">
+        <div class="spinner"></div>
+        <span class="btn-texto">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline-block;vertical-align:middle;margin-right:6px"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+          Pagar con MercadoPago
+        </span>
+      </button>
+
+      <div class="mp-badge">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Procesado de forma segura por MercadoPago
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ─── Lee el carrito guardado en localStorage ───
+  var carrito = JSON.parse(localStorage.getItem('revla-carrito') || '[]');
+
+  function formatPrecio(num) {
+    return '$' + num.toLocaleString('es-CL');
+  }
+
+  function calcularTotal() {
+    return carrito.reduce(function(sum, item) {
+      var p = parseInt(String(item.precio).replace(/\D/g, '')) || 0;
+      return sum + p * item.cantidad;
+    }, 0);
+  }
+
+  function renderItems() {
+    var lista = document.getElementById('items-lista');
+    var vacio = document.getElementById('carrito-vacio');
+    var btnPagar = document.getElementById('btn-pagar');
+
+    if (carrito.length === 0) {
+      lista.style.display = 'none';
+      vacio.style.display = 'block';
+      btnPagar.disabled = true;
+      document.getElementById('items-count').textContent = '0 productos';
+      document.getElementById('subtotal-val').textContent = '$0';
+      document.getElementById('total-val').textContent = '$0';
+      return;
+    }
+
+    var totalItems = carrito.reduce(function(s, i) { return s + i.cantidad; }, 0);
+    var total = calcularTotal();
+
+    document.getElementById('items-count').textContent = totalItems + (totalItems === 1 ? ' producto' : ' productos');
+    document.getElementById('subtotal-val').textContent = formatPrecio(total);
+    document.getElementById('total-val').textContent = formatPrecio(total);
+
+    lista.innerHTML = carrito.map(function(item) {
+      var precioItem = parseInt(String(item.precio).replace(/\D/g, '')) || 0;
+      return '<div class="item-row">' +
+        '<div class="item-icon">' +
+          '<svg width="20" height="20" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg>' +
+        '</div>' +
+        '<div>' +
+          '<p class="item-nombre">' + item.nombre + '</p>' +
+          '<p class="item-sub">Talla ' + item.talla + ' · ' + item.categoria + ' · x' + item.cantidad + '</p>' +
+        '</div>' +
+        '<p class="item-precio">' + formatPrecio(precioItem * item.cantidad) + '</p>' +
+      '</div>';
+    }).join('');
+  }
+
+  // ─── Llama al servidor y redirige a MP ───
+  async function irAPagar() {
+    var btn = document.getElementById('btn-pagar');
+    var errorBox = document.getElementById('error-pago');
+
+    btn.disabled = true;
+    btn.classList.add('cargando');
+    errorBox.classList.remove('visible');
+
+    try {
+      // ⚠️  Cambia esta URL a la de tu servidor cuando lo despliegues
+      var urlServidor = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000/crear-preferencia'
+  : 'https://revla-pagos.onrender.com/crear-preferencia';
+
+      var resp = await fetch(urlServidor, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ carrito: carrito })
+      });
+
+      if (!resp.ok) throw new Error('Error del servidor');
+      var data = await resp.json();
+
+      // En pruebas usa sandbox_init_point, en producción init_point
+      var urlPago = data.sandbox_init_point || data.init_point;
+      if (!urlPago) throw new Error('No se recibió URL de pago');
+
+      // Vacía el carrito antes de ir a pagar
+      localStorage.removeItem('revla-carrito');
+
+      // Redirige a MercadoPago
+      window.location.href = urlPago;
+
+    } catch (err) {
+      console.error(err);
+      errorBox.classList.add('visible');
+      btn.disabled = false;
+      btn.classList.remove('cargando');
+    }
+  }
+
+  renderItems();
+</script>
+</body>
+</html>

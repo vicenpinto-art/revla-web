@@ -860,7 +860,7 @@
         nombre: 'Por definir',
         categoria: 'Próximamente',
         talla: tallaSeleccionada,
-        precio: 'Por confirmar',
+        precio: '$104',
         cantidad: 1
       });
     }
@@ -877,7 +877,8 @@
   }
 
   function irCheckout() {
-    mostrarToast('Checkout con MercadoPago — próximamente');
+    if(carrito.length === 0){ mostrarToast('Tu carrito está vacío'); return; }
+    window.location.href = 'checkout.html';
   }
 
   // ── ACCORDION DETALLES ──
