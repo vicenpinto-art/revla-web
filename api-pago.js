@@ -25,38 +25,47 @@ if (!ACCESS_TOKEN || !DOMINIO) {
 
 const client = new MercadoPagoConfig({ accessToken: ACCESS_TOKEN });
 
+// ── Almacén temporal de pedidos (preference_id → datos) ──
+const pedidosTemp = new Map();
+
 // ── Transporter de correo ──
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
+  host: 'smtp.gmail.com',
   port: 465,
   secure: true,
   family: 4,
   auth: { user: GMAIL_USER, pass: GMAIL_PASS }
 });
 
-// ── Enviar correo de notificación ──
-async function enviarCorreoVenta(pago) {
+// ── Correo al vendedor ──
+async function enviarCorreoVendedor(pago, pedido) {
   try {
-    const items = pago.additional_info?.items || [];
-    const payer = pago.additional_info?.payer || {};
-    const ref   = pago.external_reference || '';
+    const carrito  = pedido?.carrito || [];
+    const comprador = pedido?.comprador || {};
 
-    const itemsHTML = items.map(i =>
-      `<tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff">${i.title}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:center">${i.quantity}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:right">$${Number(i.unit_price).toLocaleString('es-CL')}</td>
-      </tr>`
-    ).join('');
+    const itemsHTML = carrito.map(i => {
+      const precio = parseInt(String(i.precio).replace(/\D/g, '')) || 0;
+      return `<tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff">${i.nombre}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:center">${i.talla}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:center">${i.cantidad}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:right">$${(precio * i.cantidad).toLocaleString('es-CL')}</td>
+      </tr>`;
+    }).join('');
 
-    const total = items.reduce((s, i) => s + i.unit_price * i.quantity, 0);
+    const subtotal = carrito.reduce((s, i) => s + (parseInt(String(i.precio).replace(/\D/g, '')) || 0) * i.cantidad, 0);
+    const total = subtotal + (comprador.costoEnvio || 0);
+
+    const infoEnvio = comprador.tipoEnvio === 'retiro'
+      ? 'Retiro en Espacio Vuela (gratis)'
+      : `Despacho Bluexpress a: ${comprador.direccion}, ${comprador.ciudad}, ${comprador.region}`;
 
     await transporter.sendMail({
       from: `"Revla" <${GMAIL_USER}>`,
       to: GMAIL_USER,
       subject: `🛍️ Nueva venta Revla — $${total.toLocaleString('es-CL')}`,
       html: `
-        <div style="font-family:'Outfit',sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f5efe8">
+        <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f5efe8">
           <h1 style="font-family:Georgia,serif;font-size:28px;color:#1a1718;margin-bottom:4px">rev<em style="color:#a183ff">la</em></h1>
           <p style="color:#6b6570;margin-bottom:24px">Nueva venta recibida</p>
 
@@ -65,40 +74,111 @@ async function enviarCorreoVenta(pago) {
             <table style="width:100%;border-collapse:collapse;font-size:14px">
               <thead>
                 <tr style="background:#f2eeff">
-                  <th style="padding:8px 12px;text-align:left;color:#6b6570;font-weight:600">Producto</th>
-                  <th style="padding:8px 12px;text-align:center;color:#6b6570;font-weight:600">Cant.</th>
-                  <th style="padding:8px 12px;text-align:right;color:#6b6570;font-weight:600">Precio</th>
+                  <th style="padding:8px 12px;text-align:left;color:#6b6570">Producto</th>
+                  <th style="padding:8px 12px;text-align:center;color:#6b6570">Talla</th>
+                  <th style="padding:8px 12px;text-align:center;color:#6b6570">Cant.</th>
+                  <th style="padding:8px 12px;text-align:right;color:#6b6570">Precio</th>
                 </tr>
               </thead>
               <tbody>${itemsHTML}</tbody>
               <tfoot>
-                <tr>
-                  <td colspan="2" style="padding:12px;font-weight:700;font-size:16px">Total</td>
-                  <td style="padding:12px;font-weight:700;font-size:16px;text-align:right;color:#a183ff">$${total.toLocaleString('es-CL')}</td>
-                </tr>
+                <tr><td colspan="3" style="padding:12px;font-weight:700">Envío</td><td style="padding:12px;text-align:right">${comprador.costoEnvio > 0 ? '$' + comprador.costoEnvio.toLocaleString('es-CL') : 'Gratis'}</td></tr>
+                <tr><td colspan="3" style="padding:12px;font-weight:700;font-size:16px">Total</td><td style="padding:12px;font-weight:700;font-size:16px;text-align:right;color:#a183ff">$${total.toLocaleString('es-CL')}</td></tr>
               </tfoot>
             </table>
           </div>
 
           <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px">
             <h2 style="font-size:16px;font-weight:700;margin-bottom:12px;color:#1a1718">Datos del comprador</h2>
-            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Nombre:</strong> ${payer.first_name || ''} ${payer.last_name || ''}</p>
-            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Email:</strong> ${pago.payer?.email || ''}</p>
-            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Teléfono:</strong> ${payer.phone?.number || 'No indicado'}</p>
+            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Nombre:</strong> ${comprador.nombre} ${comprador.apellido}</p>
+            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Email:</strong> ${comprador.email}</p>
+            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Teléfono:</strong> ${comprador.telefono || 'No indicado'}</p>
           </div>
 
           <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px">
-            <h2 style="font-size:16px;font-weight:700;margin-bottom:12px;color:#1a1718">Envío</h2>
-            <p style="font-size:14px;color:#6b6570">${ref.split('|').slice(2).join('|').trim() || 'Ver referencia'}</p>
+            <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;color:#1a1718">Envío</h2>
+            <p style="font-size:14px;color:#6b6570">${infoEnvio}</p>
           </div>
 
           <p style="font-size:12px;color:#b0a8b5;text-align:center;margin-top:24px">ID de pago: ${pago.id} · ${new Date().toLocaleString('es-CL')}</p>
         </div>
       `
     });
-    console.log('✅ Correo de venta enviado');
+    console.log('✅ Correo vendedor enviado');
   } catch (err) {
-    console.error('❌ Error enviando correo:', err.message);
+    console.error('❌ Error correo vendedor:', err.message);
+  }
+}
+
+// ── Correo al comprador ──
+async function enviarCorreoComprador(pago, pedido) {
+  try {
+    const carrito   = pedido?.carrito || [];
+    const comprador = pedido?.comprador || {};
+    if (!comprador.email) return;
+
+    const itemsHTML = carrito.map(i => {
+      const precio = parseInt(String(i.precio).replace(/\D/g, '')) || 0;
+      return `<tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff">${i.nombre}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:center">${i.talla}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:center">${i.cantidad}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:right">$${(precio * i.cantidad).toLocaleString('es-CL')}</td>
+      </tr>`;
+    }).join('');
+
+    const subtotal = carrito.reduce((s, i) => s + (parseInt(String(i.precio).replace(/\D/g, '')) || 0) * i.cantidad, 0);
+    const total = subtotal + (comprador.costoEnvio || 0);
+
+    const infoEnvio = comprador.tipoEnvio === 'retiro'
+      ? 'Retiro en Espacio Vuela — nos contactaremos para coordinar.'
+      : `Despacho Bluexpress a: ${comprador.direccion}, ${comprador.ciudad}, ${comprador.region}`;
+
+    await transporter.sendMail({
+      from: `"Revla" <${GMAIL_USER}>`,
+      to: comprador.email,
+      subject: `¡Tu pedido Revla fue confirmado! 🛍️`,
+      html: `
+        <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f5efe8">
+          <h1 style="font-family:Georgia,serif;font-size:28px;color:#1a1718;margin-bottom:4px">rev<em style="color:#a183ff">la</em></h1>
+          <p style="color:#6b6570;margin-bottom:8px">Hola ${comprador.nombre},</p>
+          <p style="color:#6b6570;margin-bottom:24px">Tu pedido fue confirmado. Acá está el resumen:</p>
+
+          <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px">
+            <h2 style="font-size:16px;font-weight:700;margin-bottom:16px;color:#1a1718">Tu pedido</h2>
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+              <thead>
+                <tr style="background:#f2eeff">
+                  <th style="padding:8px 12px;text-align:left;color:#6b6570">Producto</th>
+                  <th style="padding:8px 12px;text-align:center;color:#6b6570">Talla</th>
+                  <th style="padding:8px 12px;text-align:center;color:#6b6570">Cant.</th>
+                  <th style="padding:8px 12px;text-align:right;color:#6b6570">Precio</th>
+                </tr>
+              </thead>
+              <tbody>${itemsHTML}</tbody>
+              <tfoot>
+                <tr><td colspan="3" style="padding:12px;font-weight:700">Envío</td><td style="padding:12px;text-align:right">${comprador.costoEnvio > 0 ? '$' + comprador.costoEnvio.toLocaleString('es-CL') : 'Gratis'}</td></tr>
+                <tr><td colspan="3" style="padding:12px;font-weight:700;font-size:16px">Total pagado</td><td style="padding:12px;font-weight:700;font-size:16px;text-align:right;color:#a183ff">$${total.toLocaleString('es-CL')}</td></tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px">
+            <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;color:#1a1718">Envío</h2>
+            <p style="font-size:14px;color:#6b6570">${infoEnvio}</p>
+          </div>
+
+          <div style="background:#f2eeff;border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
+            <p style="font-size:14px;color:#6b6570">¿Tienes dudas? Escríbenos a <a href="mailto:${GMAIL_USER}" style="color:#a183ff">${GMAIL_USER}</a></p>
+          </div>
+
+          <p style="font-size:12px;color:#b0a8b5;text-align:center">ID de pago: ${pago.id}</p>
+        </div>
+      `
+    });
+    console.log('✅ Correo comprador enviado a', comprador.email);
+  } catch (err) {
+    console.error('❌ Error correo comprador:', err.message);
   }
 }
 
@@ -115,7 +195,7 @@ app.post('/crear-preferencia', async (req, res) => {
     return {
       id:          item.nombre,
       title:       item.nombre,
-      description: `Talla: ${item.talla} — ${item.categoria}`,
+      description: `Talla: ${item.talla}`,
       quantity:    Number(item.cantidad) || 1,
       unit_price:  precioLimpio,
       currency_id: 'CLP',
@@ -134,9 +214,7 @@ app.post('/crear-preferencia', async (req, res) => {
 
   const resumenPedido = carrito.map(i => `${i.nombre} T:${i.talla} x${i.cantidad}`).join(', ');
   const infoEnvio = comprador
-    ? (comprador.tipoEnvio === 'retiro'
-        ? 'Retiro en Espacio Vuela'
-        : `Despacho a: ${comprador.direccion}, ${comprador.ciudad}, ${comprador.region}`)
+    ? (comprador.tipoEnvio === 'retiro' ? 'Retiro en Espacio Vuela' : `Despacho: ${comprador.direccion}, ${comprador.ciudad}`)
     : '';
 
   try {
@@ -162,6 +240,10 @@ app.post('/crear-preferencia', async (req, res) => {
       },
     });
 
+    // Guardar datos del pedido temporalmente
+    pedidosTemp.set(result.id, { carrito, comprador });
+    setTimeout(() => pedidosTemp.delete(result.id), 24 * 60 * 60 * 1000); // limpiar en 24h
+
     res.json({
       init_point:         result.init_point,
       sandbox_init_point: result.sandbox_init_point,
@@ -173,7 +255,7 @@ app.post('/crear-preferencia', async (req, res) => {
   }
 });
 
-// ── POST /webhook — MercadoPago notifica pagos ──
+// ── POST /webhook ──
 app.post('/webhook', async (req, res) => {
   res.sendStatus(200);
 
@@ -185,7 +267,10 @@ app.post('/webhook', async (req, res) => {
     const pago = await paymentApi.get({ id: data.id });
 
     if (pago.status === 'approved') {
-      await enviarCorreoVenta(pago);
+      // Buscar datos del pedido por preference_id
+      const pedido = pedidosTemp.get(pago.preference_id) || {};
+      await enviarCorreoVendedor(pago, pedido);
+      await enviarCorreoComprador(pago, pedido);
     }
   } catch (err) {
     console.error('Error webhook:', err.message);
