@@ -284,7 +284,7 @@
       // ⚠️  Cambia esta URL a la de tu servidor cuando lo despliegues
       var urlServidor = window.location.hostname === 'localhost' 
   ? 'http://localhost:3000/crear-preferencia'
-  : 'https://revla-pagos.onrender.com/crear-preferencia';
+  : 'https://revla.cl/crear-preferencia';
 
       var resp = await fetch(urlServidor, {
         method: 'POST',
@@ -296,7 +296,9 @@
       var data = await resp.json();
 
       // En pruebas usa sandbox_init_point, en producción init_point
-      var urlPago = data.sandbox_init_point || data.init_point;
+      var urlPago = window.location.hostname === 'localhost'
+  ? data.sandbox_init_point
+  : data.init_point;
       if (!urlPago) throw new Error('No se recibió URL de pago');
 
       // Vacía el carrito antes de ir a pagar
