@@ -199,7 +199,7 @@ app.post('/crear-preferencia', async (req, res) => {
     ? 'Retiro en Espacio Vuela'
     : `Despacho: ${comprador?.direccion}, ${comprador?.ciudad}, ${comprador?.region}`;
 
-  const ref = `${tipoEnvioRef} | Tel: ${comprador?.telefono || 'no indicado'}`;
+  const ref = `${tipoEnvioRef} | Tel: ${comprador?.telefono || 'no indicado'} | Nombre: ${comprador?.nombre} ${comprador?.apellido} | Email: ${comprador?.email}`;
 
   try {
     const preference = new Preference(client);
