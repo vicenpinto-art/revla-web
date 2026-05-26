@@ -29,81 +29,83 @@ const client = new MercadoPagoConfig({ accessToken: ACCESS_TOKEN });
 const resend  = new Resend(RESEND_API_KEY);
 
 // ── Parsear external_reference ──
-// Formato: "Retiro en Espacio Vuela | Tel: +569... | Nombre: Juan Pérez | Email: juan@mail.com"
 function parsearRef(ref) {
   const datos = { envio: '', telefono: '', nombre: '', email: '' };
   if (!ref) return datos;
   const partes = ref.split(' | ');
   partes.forEach(p => {
-    if (p.startsWith('Tel: '))    datos.telefono = p.replace('Tel: ', '').trim();
-    else if (p.startsWith('Nombre: ')) datos.nombre = p.replace('Nombre: ', '').trim();
-    else if (p.startsWith('Email: ')) datos.email  = p.replace('Email: ', '').trim();
+    if (p.startsWith('Tel: '))       datos.telefono = p.replace('Tel: ', '').trim();
+    else if (p.startsWith('Nombre: ')) datos.nombre  = p.replace('Nombre: ', '').trim();
+    else if (p.startsWith('Email: ')) datos.email   = p.replace('Email: ', '').trim();
     else datos.envio = p.trim();
   });
   return datos;
+}
+
+// ── HTML items responsive ──
+function itemsHTML(carrito) {
+  if (!carrito.length) return `<p style="font-size:14px;color:#6b6570;padding:8px 0">Ver detalles en MercadoPago</p>`;
+  return carrito.map(i => {
+    const precio = parseInt(String(i.unit_price || 0)) || 0;
+    return `
+      <div style="padding:12px 0;border-bottom:1px solid #f0e8ff">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div style="flex:1">
+            <p style="margin:0;font-size:14px;font-weight:600;color:#1a1718">${i.title}</p>
+            <p style="margin:4px 0 0;font-size:13px;color:#6b6570">${i.description || ''} · x${i.quantity}</p>
+          </div>
+          <p style="margin:0;font-size:14px;font-weight:600;color:#1a1718;white-space:nowrap">$${(precio * i.quantity).toLocaleString('es-CL')}</p>
+        </div>
+      </div>`;
+  }).join('');
 }
 
 // ── Correo al vendedor ──
 async function enviarCorreoVendedor(pago, carrito) {
   try {
     const ref    = parsearRef(pago.external_reference);
-    const nombre = ref.nombre || pago.payer?.first_name || '';
-    const email  = ref.email  || pago.payer?.email      || '';
+    const nombre = ref.nombre   || pago.payer?.first_name || '';
+    const email  = ref.email    || pago.payer?.email      || '';
     const tel    = ref.telefono || 'No indicado';
-    const envio  = ref.envio || '';
-
-    const itemsHTML = carrito.length > 0
-      ? carrito.map(i => {
-          const precio = parseInt(String(i.unit_price || 0)) || 0;
-          return `<tr>
-            <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff">${i.title}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:center">${i.description || ''}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:center">${i.quantity}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:right">$${(precio * i.quantity).toLocaleString('es-CL')}</td>
-          </tr>`;
-        }).join('')
-      : `<tr><td colspan="4" style="padding:12px;color:#6b6570">Ver detalles en MercadoPago (ID: ${pago.id})</td></tr>`;
-
-    const total = pago.transaction_amount || 0;
+    const envio  = ref.envio    || '';
+    const total  = pago.transaction_amount || 0;
 
     await resend.emails.send({
       from:    FROM_EMAIL,
       to:      VENDEDOR_EMAIL,
       subject: `🛍️ Nueva venta Revla — $${total.toLocaleString('es-CL')}`,
-      html: `
-        <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f5efe8">
-          <h1 style="font-family:Georgia,serif;font-size:28px;color:#1a1718;margin-bottom:4px">rev<em style="color:#a183ff">la</em></h1>
-          <p style="color:#6b6570;margin-bottom:24px">Nueva venta recibida</p>
-          <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px">
-            <h2 style="font-size:16px;font-weight:700;margin-bottom:16px;color:#1a1718">Detalle del pedido</h2>
-            <table style="width:100%;border-collapse:collapse;font-size:14px">
-              <thead>
-                <tr style="background:#f2eeff">
-                  <th style="padding:8px 12px;text-align:left;color:#6b6570">Producto</th>
-                  <th style="padding:8px 12px;text-align:center;color:#6b6570">Detalle</th>
-                  <th style="padding:8px 12px;text-align:center;color:#6b6570">Cant.</th>
-                  <th style="padding:8px 12px;text-align:right;color:#6b6570">Precio</th>
-                </tr>
-              </thead>
-              <tbody>${itemsHTML}</tbody>
-              <tfoot>
-                <tr><td colspan="3" style="padding:12px;font-weight:700;font-size:16px">Total</td><td style="padding:12px;font-weight:700;font-size:16px;text-align:right;color:#a183ff">$${total.toLocaleString('es-CL')}</td></tr>
-              </tfoot>
-            </table>
-          </div>
-          <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px">
-            <h2 style="font-size:16px;font-weight:700;margin-bottom:12px;color:#1a1718">Datos del comprador</h2>
-            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Nombre:</strong> ${nombre}</p>
-            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Email:</strong> ${email}</p>
-            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Teléfono:</strong> ${tel}</p>
-          </div>
-          <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px">
-            <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;color:#1a1718">Envío</h2>
-            <p style="font-size:14px;color:#6b6570">${envio}</p>
-          </div>
-          <p style="font-size:12px;color:#b0a8b5;text-align:center;margin-top:24px">ID de pago: ${pago.id} · ${new Date().toLocaleString('es-CL')}</p>
-        </div>
-      `
+      html: `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f5efe8;font-family:sans-serif">
+<div style="max-width:520px;margin:0 auto;padding:24px 16px">
+
+  <h1 style="font-family:Georgia,serif;font-size:26px;color:#1a1718;margin:0 0 4px">rev<em style="color:#a183ff">la</em></h1>
+  <p style="color:#6b6570;margin:0 0 20px;font-size:14px">Nueva venta recibida</p>
+
+  <div style="background:white;border-radius:16px;padding:20px;margin-bottom:12px">
+    <h2 style="font-size:15px;font-weight:700;margin:0 0 12px;color:#1a1718">Detalle del pedido</h2>
+    ${itemsHTML(carrito)}
+    <div style="display:flex;justify-content:space-between;padding:12px 0 0;margin-top:4px">
+      <span style="font-size:15px;font-weight:700;color:#1a1718">Total</span>
+      <span style="font-size:15px;font-weight:700;color:#a183ff">$${total.toLocaleString('es-CL')}</span>
+    </div>
+  </div>
+
+  <div style="background:white;border-radius:16px;padding:20px;margin-bottom:12px">
+    <h2 style="font-size:15px;font-weight:700;margin:0 0 12px;color:#1a1718">Datos del comprador</h2>
+    <p style="margin:4px 0;font-size:14px;color:#6b6570"><strong style="color:#1a1718">Nombre:</strong> ${nombre}</p>
+    <p style="margin:4px 0;font-size:14px;color:#6b6570"><strong style="color:#1a1718">Email:</strong> ${email}</p>
+    <p style="margin:4px 0;font-size:14px;color:#6b6570"><strong style="color:#1a1718">Teléfono:</strong> ${tel}</p>
+  </div>
+
+  <div style="background:white;border-radius:16px;padding:20px;margin-bottom:12px">
+    <h2 style="font-size:15px;font-weight:700;margin:0 0 8px;color:#1a1718">Envío</h2>
+    <p style="margin:0;font-size:14px;color:#6b6570">${envio}</p>
+  </div>
+
+  <p style="font-size:11px;color:#b0a8b5;text-align:center;margin-top:16px">ID de pago: ${pago.id} · ${new Date().toLocaleString('es-CL')}</p>
+</div>
+</body></html>`
     });
     console.log('✅ Correo vendedor enviado');
   } catch (err) {
@@ -117,63 +119,48 @@ async function enviarCorreoComprador(pago, carrito) {
     const ref    = parsearRef(pago.external_reference);
     const nombre = ref.nombre?.split(' ')[0] || pago.payer?.first_name || '';
     const email  = ref.email  || pago.payer?.email || '';
+    const envio  = ref.envio  || '';
+    const total  = pago.transaction_amount || 0;
 
     if (!email) {
       console.log('⚠️ Sin email del comprador, omitiendo correo');
       return;
     }
 
-    const itemsHTML = carrito.length > 0
-      ? carrito.map(i => {
-          const precio = parseInt(String(i.unit_price || 0)) || 0;
-          return `<tr>
-            <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff">${i.title}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:center">${i.description || ''}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:center">${i.quantity}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #f0e8ff;text-align:right">$${(precio * i.quantity).toLocaleString('es-CL')}</td>
-          </tr>`;
-        }).join('')
-      : `<tr><td colspan="4" style="padding:12px;color:#6b6570">Pedido confirmado</td></tr>`;
-
-    const total = pago.transaction_amount || 0;
-    const envio = ref.envio || '';
-
     await resend.emails.send({
       from:    FROM_EMAIL,
       to:      email,
       subject: `¡Tu pedido Revla fue confirmado! 🛍️`,
-      html: `
-        <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f5efe8">
-          <h1 style="font-family:Georgia,serif;font-size:28px;color:#1a1718;margin-bottom:4px">rev<em style="color:#a183ff">la</em></h1>
-          <p style="color:#6b6570;margin-bottom:8px">Hola ${nombre},</p>
-          <p style="color:#6b6570;margin-bottom:24px">Tu pedido fue confirmado. Acá está el resumen:</p>
-          <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px">
-            <h2 style="font-size:16px;font-weight:700;margin-bottom:16px;color:#1a1718">Tu pedido</h2>
-            <table style="width:100%;border-collapse:collapse;font-size:14px">
-              <thead>
-                <tr style="background:#f2eeff">
-                  <th style="padding:8px 12px;text-align:left;color:#6b6570">Producto</th>
-                  <th style="padding:8px 12px;text-align:center;color:#6b6570">Detalle</th>
-                  <th style="padding:8px 12px;text-align:center;color:#6b6570">Cant.</th>
-                  <th style="padding:8px 12px;text-align:right;color:#6b6570">Precio</th>
-                </tr>
-              </thead>
-              <tbody>${itemsHTML}</tbody>
-              <tfoot>
-                <tr><td colspan="3" style="padding:12px;font-weight:700;font-size:16px">Total pagado</td><td style="padding:12px;font-weight:700;font-size:16px;text-align:right;color:#a183ff">$${total.toLocaleString('es-CL')}</td></tr>
-              </tfoot>
-            </table>
-          </div>
-          <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px">
-            <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;color:#1a1718">Envío</h2>
-            <p style="font-size:14px;color:#6b6570">${envio}</p>
-          </div>
-          <div style="background:#f2eeff;border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
-            <p style="font-size:14px;color:#6b6570">¿Tienes dudas? Escríbenos a <a href="mailto:${VENDEDOR_EMAIL}" style="color:#a183ff">${VENDEDOR_EMAIL}</a></p>
-          </div>
-          <p style="font-size:12px;color:#b0a8b5;text-align:center">ID de pago: ${pago.id}</p>
-        </div>
-      `
+      html: `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f5efe8;font-family:sans-serif">
+<div style="max-width:520px;margin:0 auto;padding:24px 16px">
+
+  <h1 style="font-family:Georgia,serif;font-size:26px;color:#1a1718;margin:0 0 4px">rev<em style="color:#a183ff">la</em></h1>
+  <p style="color:#6b6570;margin:0 0 4px;font-size:14px">Hola ${nombre},</p>
+  <p style="color:#6b6570;margin:0 0 20px;font-size:14px">Tu pedido fue confirmado. Acá está el resumen:</p>
+
+  <div style="background:white;border-radius:16px;padding:20px;margin-bottom:12px">
+    <h2 style="font-size:15px;font-weight:700;margin:0 0 12px;color:#1a1718">Tu pedido</h2>
+    ${itemsHTML(carrito)}
+    <div style="display:flex;justify-content:space-between;padding:12px 0 0;margin-top:4px">
+      <span style="font-size:15px;font-weight:700;color:#1a1718">Total pagado</span>
+      <span style="font-size:15px;font-weight:700;color:#a183ff">$${total.toLocaleString('es-CL')}</span>
+    </div>
+  </div>
+
+  <div style="background:white;border-radius:16px;padding:20px;margin-bottom:12px">
+    <h2 style="font-size:15px;font-weight:700;margin:0 0 8px;color:#1a1718">Envío</h2>
+    <p style="margin:0;font-size:14px;color:#6b6570">${envio}</p>
+  </div>
+
+  <div style="background:#f2eeff;border-radius:16px;padding:16px;margin-bottom:12px;text-align:center">
+    <p style="margin:0;font-size:14px;color:#6b6570">¿Tienes dudas? Escríbenos a <a href="mailto:${VENDEDOR_EMAIL}" style="color:#a183ff">${VENDEDOR_EMAIL}</a></p>
+  </div>
+
+  <p style="font-size:11px;color:#b0a8b5;text-align:center;margin-top:16px">ID de pago: ${pago.id}</p>
+</div>
+</body></html>`
     });
     console.log('✅ Correo comprador enviado a', email);
   } catch (err) {
@@ -205,7 +192,7 @@ app.post('/crear-preferencia', async (req, res) => {
     items.push({
       id:          'envio',
       title:       'Envío a domicilio (Bluexpress)',
-      description: `${comprador.direccion}, ${comprador.ciudad}, ${comprador.region}`,
+      description: `${comprador.direccion}${comprador.torre ? ', Torre ' + comprador.torre : ''}${comprador.depto ? ', Depto ' + comprador.depto : ''}, ${comprador.ciudad}, ${comprador.region}`,
       quantity:    1,
       unit_price:  comprador.costoEnvio,
       currency_id: 'CLP',
@@ -214,7 +201,7 @@ app.post('/crear-preferencia', async (req, res) => {
 
   const tipoEnvioRef = comprador?.tipoEnvio === 'retiro'
     ? 'Retiro en Espacio Vuela'
-    : `Despacho: ${comprador?.direccion}, ${comprador?.ciudad}, ${comprador?.region}`;
+    : `Despacho: ${comprador?.direccion}${comprador?.torre ? ', Torre ' + comprador.torre : ''}${comprador?.depto ? ', Depto ' + comprador.depto : ''}, ${comprador?.ciudad}, ${comprador?.region}`;
 
   const ref = `${tipoEnvioRef} | Tel: ${comprador?.telefono || 'no indicado'} | Nombre: ${comprador?.nombre} ${comprador?.apellido} | Email: ${comprador?.email}`;
 
