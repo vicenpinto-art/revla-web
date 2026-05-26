@@ -28,17 +28,29 @@ if (!ACCESS_TOKEN || !DOMINIO) {
 const client = new MercadoPagoConfig({ accessToken: ACCESS_TOKEN });
 const resend  = new Resend(RESEND_API_KEY);
 
+// ── Parsear external_reference ──
+// Formato: "Retiro en Espacio Vuela | Tel: +569... | Nombre: Juan Pérez | Email: juan@mail.com"
+function parsearRef(ref) {
+  const datos = { envio: '', telefono: '', nombre: '', email: '' };
+  if (!ref) return datos;
+  const partes = ref.split(' | ');
+  partes.forEach(p => {
+    if (p.startsWith('Tel: '))    datos.telefono = p.replace('Tel: ', '').trim();
+    else if (p.startsWith('Nombre: ')) datos.nombre = p.replace('Nombre: ', '').trim();
+    else if (p.startsWith('Email: ')) datos.email  = p.replace('Email: ', '').trim();
+    else datos.envio = p.trim();
+  });
+  return datos;
+}
+
 // ── Correo al vendedor ──
 async function enviarCorreoVendedor(pago, carrito) {
   try {
-    const payer = pago.payer || {};
-    const nombre   = payer.first_name || '';
-    const apellido = payer.last_name  || '';
-    const email    = payer.email      || '';
-    const telefono = payer.phone?.number || 'No indicado';
-
-    // Datos de envío desde external_reference
-    const ref = pago.external_reference || '';
+    const ref    = parsearRef(pago.external_reference);
+    const nombre = ref.nombre || pago.payer?.first_name || '';
+    const email  = ref.email  || pago.payer?.email      || '';
+    const tel    = ref.telefono || 'No indicado';
+    const envio  = ref.envio || '';
 
     const itemsHTML = carrito.length > 0
       ? carrito.map(i => {
@@ -81,13 +93,13 @@ async function enviarCorreoVendedor(pago, carrito) {
           </div>
           <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px">
             <h2 style="font-size:16px;font-weight:700;margin-bottom:12px;color:#1a1718">Datos del comprador</h2>
-            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Nombre:</strong> ${nombre} ${apellido}</p>
+            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Nombre:</strong> ${nombre}</p>
             <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Email:</strong> ${email}</p>
-            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Teléfono:</strong> ${telefono}</p>
+            <p style="font-size:14px;color:#6b6570;margin:4px 0"><strong style="color:#1a1718">Teléfono:</strong> ${tel}</p>
           </div>
           <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px">
-            <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;color:#1a1718">Referencia del pedido</h2>
-            <p style="font-size:13px;color:#6b6570;word-break:break-all">${ref}</p>
+            <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;color:#1a1718">Envío</h2>
+            <p style="font-size:14px;color:#6b6570">${envio}</p>
           </div>
           <p style="font-size:12px;color:#b0a8b5;text-align:center;margin-top:24px">ID de pago: ${pago.id} · ${new Date().toLocaleString('es-CL')}</p>
         </div>
@@ -102,9 +114,9 @@ async function enviarCorreoVendedor(pago, carrito) {
 // ── Correo al comprador ──
 async function enviarCorreoComprador(pago, carrito) {
   try {
-    const payer = pago.payer || {};
-    const nombre = payer.first_name || '';
-    const email  = payer.email || '';
+    const ref    = parsearRef(pago.external_reference);
+    const nombre = ref.nombre?.split(' ')[0] || pago.payer?.first_name || '';
+    const email  = ref.email  || pago.payer?.email || '';
 
     if (!email) {
       console.log('⚠️ Sin email del comprador, omitiendo correo');
@@ -124,6 +136,7 @@ async function enviarCorreoComprador(pago, carrito) {
       : `<tr><td colspan="4" style="padding:12px;color:#6b6570">Pedido confirmado</td></tr>`;
 
     const total = pago.transaction_amount || 0;
+    const envio = ref.envio || '';
 
     await resend.emails.send({
       from:    FROM_EMAIL,
@@ -150,6 +163,10 @@ async function enviarCorreoComprador(pago, carrito) {
                 <tr><td colspan="3" style="padding:12px;font-weight:700;font-size:16px">Total pagado</td><td style="padding:12px;font-weight:700;font-size:16px;text-align:right;color:#a183ff">$${total.toLocaleString('es-CL')}</td></tr>
               </tfoot>
             </table>
+          </div>
+          <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px">
+            <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;color:#1a1718">Envío</h2>
+            <p style="font-size:14px;color:#6b6570">${envio}</p>
           </div>
           <div style="background:#f2eeff;border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
             <p style="font-size:14px;color:#6b6570">¿Tienes dudas? Escríbenos a <a href="mailto:${VENDEDOR_EMAIL}" style="color:#a183ff">${VENDEDOR_EMAIL}</a></p>
@@ -255,17 +272,9 @@ app.post('/webhook', async (req, res) => {
     const paymentApi = new Payment(client);
     const pago = await paymentApi.get({ id: data.id });
 
-    console.log('💳 Pago:', pago.status, '| Payer:', pago.payer?.email, '| Items:', pago.additional_info?.items?.length || 0);
+    console.log('💳 Pago:', pago.status, '| Ref:', pago.external_reference?.slice(0, 80));
 
-    console.log('🔍 pago completo:', JSON.stringify({
-  id: pago.id,
-  status: pago.status,
-  preference_id: pago.preference_id,
-  external_reference: pago.external_reference,
-  payer: pago.payer,
-  additional_info: pago.additional_info?.items?.slice(0,2)
-}));
-if (pago.status === 'approved') {
+    if (pago.status === 'approved') {
       const carrito = pago.additional_info?.items || [];
       await enviarCorreoVendedor(pago, carrito);
       await enviarCorreoComprador(pago, carrito);
