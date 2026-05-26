@@ -47,15 +47,19 @@ function itemsHTML(carrito) {
   if (!carrito.length) return `<p style="font-size:14px;color:#6b6570;padding:8px 0">Ver detalles en MercadoPago</p>`;
   return carrito.map(i => {
     const precio = parseInt(String(i.unit_price || 0)) || 0;
+    const esEnvio = (i.title || '').toLowerCase().includes('env');
+    const detalle = esEnvio ? (i.description || '') : ((i.description || '') + (i.quantity > 1 ? ' · x' + i.quantity : ''));
     return `
       <div style="padding:12px 0;border-bottom:1px solid #f0e8ff">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-          <div style="flex:1">
-            <p style="margin:0;font-size:14px;font-weight:600;color:#1a1718">${i.title}</p>
-            <p style="margin:4px 0 0;font-size:13px;color:#6b6570">${i.description || ''} · x${i.quantity}</p>
-          </div>
-          <p style="margin:0;font-size:14px;font-weight:600;color:#1a1718;white-space:nowrap">$${(precio * i.quantity).toLocaleString('es-CL')}</p>
-        </div>
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="font-size:14px;font-weight:600;color:#1a1718;padding:0;vertical-align:top">${i.title}</td>
+            <td style="font-size:14px;font-weight:600;color:#1a1718;padding:0 0 0 8px;text-align:right;white-space:nowrap;vertical-align:top">$${(precio * i.quantity).toLocaleString('es-CL')}</td>
+          </tr>
+          <tr>
+            <td colspan="2" style="font-size:13px;color:#6b6570;padding:3px 0 0">${detalle}</td>
+          </tr>
+        </table>
       </div>`;
   }).join('');
 }
