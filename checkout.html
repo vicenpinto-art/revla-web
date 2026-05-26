@@ -200,7 +200,7 @@
             <p class="envio-opcion-nombre">Despacho a domicilio</p>
             <p class="envio-opcion-desc">Bluexpress — entrega en 2-5 días hábiles</p>
           </div>
-          <span class="envio-opcion-precio" id="precio-envio">A calcular</span>
+          <span class="envio-opcion-precio" id="precio-envio">Desde $4.990</span>
         </label>
       </div>
 
@@ -224,24 +224,30 @@
           </div>
           <div class="form-group">
             <label>Región</label>
-            <select id="campo-region">
+            <select id="campo-region" onchange="actualizarCostoEnvio()">
               <option value="">Selecciona...</option>
-              <option>Región Metropolitana</option>
-              <option>Valparaíso</option>
-              <option>Biobío</option>
-              <option>La Araucanía</option>
-              <option>Los Lagos</option>
-              <option>O'Higgins</option>
-              <option>Maule</option>
-              <option>Coquimbo</option>
-              <option>Antofagasta</option>
-              <option>Atacama</option>
-              <option>Tarapacá</option>
-              <option>Arica y Parinacota</option>
-              <option>Los Ríos</option>
-              <option>Aysén</option>
-              <option>Magallanes</option>
-              <option>Ñuble</option>
+              <optgroup label="Zona Santiago ($4.990)">
+                <option value="rm">Región Metropolitana</option>
+              </optgroup>
+              <optgroup label="Zona Centro ($5.990)">
+                <option value="centro">Valparaíso</option>
+                <option value="centro">O'Higgins</option>
+                <option value="centro">Maule</option>
+                <option value="centro">Ñuble</option>
+                <option value="centro">Biobío</option>
+                <option value="centro">La Araucanía</option>
+                <option value="centro">Los Ríos</option>
+                <option value="centro">Los Lagos</option>
+                <option value="centro">Coquimbo</option>
+              </optgroup>
+              <optgroup label="Zona Extremo ($9.990)">
+                <option value="extremo">Tarapacá</option>
+                <option value="extremo">Arica y Parinacota</option>
+                <option value="extremo">Antofagasta</option>
+                <option value="extremo">Atacama</option>
+                <option value="extremo">Aysén</option>
+                <option value="extremo">Magallanes</option>
+              </optgroup>
             </select>
           </div>
         </div>
@@ -318,8 +324,32 @@
     var totalItems = carrito.reduce(function(s, i) { return s + i.cantidad; }, 0);
     document.getElementById('items-count').textContent = totalItems + (totalItems === 1 ? ' producto' : ' productos');
     document.getElementById('subtotal-val').textContent = formatPrecio(subtotal);
-    document.getElementById('envio-val').textContent = costoEnvio === 0 ? 'Gratis' : formatPrecio(costoEnvio);
+    var envioTexto = costoEnvio === 0 ? (totalPrendas() >= 3 && document.querySelector('input[name="envio"]:checked')?.value === 'despacho' ? '¡Gratis! 🎉' : 'Gratis') : formatPrecio(costoEnvio);
+    document.getElementById('envio-val').textContent = envioTexto;
     document.getElementById('total-val').textContent = formatPrecio(total);
+  }
+
+  var TARIFAS = { rm: 4990, centro: 5990, extremo: 9990 };
+
+  function totalPrendas() {
+    return carrito.reduce(function(s, i) { return s + i.cantidad; }, 0);
+  }
+
+  function actualizarCostoEnvio() {
+    var envio = document.querySelector('input[name="envio"]:checked')?.value || 'retiro';
+    if (envio === 'retiro') {
+      costoEnvio = 0;
+    } else {
+      if (totalPrendas() >= 3) {
+        costoEnvio = 0;
+      } else {
+        var zona = document.getElementById('campo-region')?.value || 'rm';
+        costoEnvio = TARIFAS[zona] || 4990;
+      }
+      var texto = costoEnvio === 0 ? 'Gratis 🎉' : formatPrecio(costoEnvio);
+      document.getElementById('precio-envio').textContent = texto;
+    }
+    actualizarResumen();
   }
 
   function cambiarEnvio(tipo) {
@@ -331,15 +361,12 @@
       opcionRetiro.classList.add('activa');
       opcionDespacho.classList.remove('activa');
       camposEnvio.style.display = 'none';
-      costoEnvio = 0;
     } else {
       opcionRetiro.classList.remove('activa');
       opcionDespacho.classList.add('activa');
       camposEnvio.style.display = 'block';
-      costoEnvio = 4990;
-      document.getElementById('precio-envio').textContent = formatPrecio(costoEnvio);
     }
-    actualizarResumen();
+    actualizarCostoEnvio();
   }
 
   function renderItems() {
