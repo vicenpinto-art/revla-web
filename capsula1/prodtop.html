@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>El acordeón — Revla</title>
+  <meta name="description" content="Short convertible en calza. Modulable, ajustable, tuyo.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --lila: #a183ff;
+      --lila-soft: #b9a2ff;
+      --lila-pale: #e0d6ff;
+      --lila-ghost: #f2eeff;
+      --nude: #f5efe8;
+      --nude2: #ede4d9;
+      --black: #1a1718;
+      --gray: #6b6570;
+      --white: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; background: #fff; color: var(--black); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 200;
+      padding: 18px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(161,131,255,0.15);
+      transition: box-shadow .3s;
+    }
+    nav.scrolled { box-shadow: 0 2px 24px rgba(161,131,255,0.12); }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; letter-spacing: 0.04em; text-decoration: none; color: var(--black); }
+    .nav-logo em { font-style: italic; color: var(--lila); }
+    nav ul { list-style: none; display: flex; gap: 32px; align-items: center; }
+    nav ul a { text-decoration: none; color: var(--gray); font-size: 14px; font-weight: 500; letter-spacing: 0.3px; transition: color .2s; }
+    nav ul a:hover, nav ul a.active { color: var(--lila); }
+    .nav-cta { background: var(--lila) !important; color: #fff !important; padding: 10px 22px; border-radius: 100px; font-weight: 600 !important; transition: transform .2s, box-shadow .2s !important; }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(161,131,255,.45) !important; }
+    .nav-cart-btn {
+      position: relative; background: none; border: none; cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      color: var(--black); font-family: 'Outfit', sans-serif;
+      font-size: 14px; font-weight: 600; padding: 8px 16px;
+      border: 1.5px solid var(--lila-pale); border-radius: 100px;
+      transition: all .2s;
+    }
+    .nav-cart-btn:hover { border-color: var(--lila); color: var(--lila); }
+    .cart-count {
+      background: var(--lila); color: white;
+      font-size: 11px; font-weight: 700;
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      position: absolute; top: -6px; right: -6px;
+      display: none;
+    }
+    .cart-count.visible { display: flex; }
+    .nav-mobile-bar { display: none; align-items: center; gap: 10px; }
+    .nav-menu-btn { background: none; border: 1.5px solid rgba(0,0,0,.12); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 18px; color: #333; }
+
+    /* ── CARRITO FLOTANTE ── */
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.4);
+      z-index: 300; opacity: 0; pointer-events: none;
+      transition: opacity .3s;
+    }
+    .cart-overlay.open { opacity: 1; pointer-events: all; }
+
+    .cart-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 400px; max-width: 100vw;
+      background: white; z-index: 301;
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .35s cubic-bezier(0.25,0.46,0.45,0.94);
+      box-shadow: -8px 0 48px rgba(0,0,0,.12);
+    }
+    .cart-panel.open { transform: translateX(0); }
+
+    .cart-header {
+      padding: 24px 28px;
+      border-bottom: 1px solid var(--lila-pale);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cart-header h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px; font-style: italic;
+    }
+    .cart-close {
+      background: none; border: none; cursor: pointer;
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--lila-ghost);
+      transition: background .2s;
+    }
+    .cart-close:hover { background: var(--lila-pale); }
+    .cart-close svg { width: 16px; height: 16px; stroke: var(--black); }
+
+    .cart-items {
+      flex: 1; overflow-y: auto; padding: 24px 28px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+
+    .cart-empty {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 12px;
+      color: var(--gray); text-align: center; padding: 40px;
+    }
+    .cart-empty .empty-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--lila-ghost);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 8px;
+    }
+    .cart-empty h4 { font-family: 'Playfair Display', serif; font-size: 20px; font-style: italic; color: var(--black); }
+    .cart-empty p { font-size: 14px; line-height: 1.6; }
+
+    .cart-item {
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+    .cart-item-img {
+      width: 72px; height: 90px; border-radius: 10px;
+      background: var(--nude); flex-shrink: 0; overflow: hidden;
+    }
+    .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+    .cart-item-img .ci-ph {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--nude);
+    }
+    .cart-item-info { flex: 1; }
+    .cart-item-info .ci-sub { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--lila); margin-bottom: 2px; }
+    .cart-item-info .ci-name { font-family: 'Playfair Display', serif; font-size: 16px; font-style: italic; margin-bottom: 4px; }
+    .cart-item-info .ci-talla { font-size: 12px; color: var(--gray); margin-bottom: 8px; }
+    .cart-item-bottom { display: flex; align-items: center; justify-content: space-between; }
+    .ci-price { font-size: 15px; font-weight: 700; }
+    .ci-qty {
+      display: flex; align-items: center; gap: 0;
+      border: 1px solid var(--lila-pale); border-radius: 100px; overflow: hidden;
+    }
+    .ci-qty button {
+      background: none; border: none; cursor: pointer;
+      width: 28px; height: 28px; font-size: 16px; color: var(--gray);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, color .2s;
+    }
+    .ci-qty button:hover { background: var(--lila-pale); color: var(--lila); }
+    .ci-qty span { font-size: 13px; font-weight: 700; min-width: 24px; text-align: center; }
+    .ci-remove {
+      background: none; border: none; cursor: pointer;
+      color: var(--gray); font-size: 12px; padding: 4px;
+      transition: color .2s;
+    }
+    .ci-remove:hover { color: #e05; }
+
+    .cart-footer {
+      padding: 24px 28px;
+      border-top: 1px solid var(--lila-pale);
+    }
+    .cart-subtotal {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 8px;
+    }
+    .cart-subtotal span { font-size: 14px; color: var(--gray); }
+    .cart-subtotal strong { font-size: 20px; font-weight: 700; }
+    .cart-note { font-size: 12px; color: var(--gray); margin-bottom: 20px; line-height: 1.5; }
+    .btn-checkout {
+      width: 100%; padding: 16px; border-radius: 100px;
+      background: var(--lila); color: white; border: none;
+      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(161,131,255,.45); }
+    .btn-seguir {
+      width: 100%; padding: 12px; border-radius: 100px;
+      background: transparent; color: var(--gray); border: none;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500;
+      cursor: pointer; margin-top: 10px; transition: color .2s;
+    }
+    .btn-seguir:hover { color: var(--lila); }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+      padding: 100px 60px 0;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--gray);
+    }
+    .breadcrumb a { color: var(--gray); text-decoration: none; transition: color .2s; }
+    .breadcrumb a:hover { color: var(--lila); }
+    .breadcrumb span { color: var(--lila-pale); }
+
+    /* ── PRODUCTO MAIN ── */
+    .producto-main {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; padding: 40px 60px 100px;
+    }
+
+    /* GALERÍA */
+    .galeria { display: flex; flex-direction: column; gap: 12px; }
+    .galeria-main {
+      position: relative; border-radius: 20px; overflow: hidden;
+      background: var(--nude); aspect-ratio: 3/4;
+    }
+    .galeria-main img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .galeria-main-ph {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px;
+    }
+    .galeria-main-ph .ph-icon { width: 64px; height: 64px; border-radius: 50%; background: var(--lila-pale); display: flex; align-items: center; justify-content: center; }
+    .galeria-main-ph p { font-size: 14px; color: var(--gray); font-style: italic; }
+    .galeria-main-ph small { font-size: 12px; color: var(--lila); font-weight: 600; }
+
+    .galeria-thumbs {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    }
+    .thumb {
+      aspect-ratio: 1; border-radius: 10px; overflow: hidden;
+      background: var(--nude); cursor: pointer;
+      border: 2px solid transparent; transition: border-color .2s;
+    }
+    .thumb.active { border-color: var(--lila); }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .thumb-ph {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px dashed var(--lila-pale);
+    }
+
+    /* BADGE NUEVO */
+    .prod-badge-new {
+      position: absolute; top: 16px; left: 16px;
+      background: var(--lila); color: white;
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; padding: 6px 14px; border-radius: 100px;
+    }
+
+    /* INFO */
+    .producto-info { display: flex; flex-direction: column; gap: 0; }
+
+    .prod-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--lila);
+      display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+    }
+    .prod-eyebrow::before { content: ''; display: block; width: 20px; height: 2px; background: var(--lila); }
+
+    .prod-nombre {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 4vw, 52px);
+      font-weight: 700; line-height: 1.05; margin-bottom: 8px;
+    }
+    .prod-nombre em { font-style: italic; color: var(--lila); }
+
+    .prod-capsula {
+      font-size: 13px; color: var(--gray); margin-bottom: 24px;
+    }
+    .prod-capsula a { color: var(--lila); text-decoration: none; font-weight: 600; }
+
+    .prod-precio {
+      font-size: 32px; font-weight: 700; margin-bottom: 28px;
+      color: var(--black);
+    }
+    .prod-precio .precio-tbd {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px; font-style: italic; font-weight: 400;
+      color: var(--gray);
+    }
+
+    .prod-divider { height: 1px; background: var(--lila-pale); margin: 4px 0 28px; }
+
+    /* TALLA */
+    .talla-label {
+      font-size: 12px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--gray); margin-bottom: 12px;
+      display: flex; justify-content: space-between;
+    }
+    .talla-label a { color: var(--lila); text-decoration: none; font-weight: 600; font-size: 12px; letter-spacing: 0; text-transform: none; }
+    .tallas { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+    .talla-btn {
+      width: 48px; height: 48px; border-radius: 12px;
+      border: 1.5px solid rgba(0,0,0,.12); background: white;
+      font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: all .2s; color: var(--black);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .talla-btn:hover { border-color: var(--lila); color: var(--lila); }
+    .talla-btn.active { background: var(--lila); border-color: var(--lila); color: white; }
+    .talla-btn.agotada { opacity: .35; cursor: not-allowed; text-decoration: line-through; }
+    /* ── COLORES ── */
+    .color-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--gray); margin-bottom: 12px;
+    }
+    .color-label span { color: var(--black); font-weight: 700; text-transform: none; letter-spacing: 0; }
+    .colores { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+    .color-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer; transition: all .2s;
+      outline: 2px solid transparent; outline-offset: 2px;
+    }
+    .color-btn:hover { outline-color: var(--lila-pale); transform: scale(1.1); }
+    .color-btn.active { outline-color: var(--lila); transform: scale(1.1); }
+    .color-btn[title="Negro"] { background: #1a1718; }
+    .color-btn[title="Morado oscuro"] { background: #3d2670; }
+    .color-btn[title="Rosa pastel"] { background: #f4b8c8; }
+    .color-btn[title="Café"] { background: #7a4f2e; }
+
+    /* BOTONES COMPRA */
+    .compra-btns { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+    .btn-agregar {
+      width: 100%; padding: 17px; border-radius: 100px;
+      background: var(--lila); color: white; border: none;
+      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(161,131,255,.35);
+    }
+    .btn-agregar:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(161,131,255,.5); }
+    .btn-agregar:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-wishlist {
+      width: 100%; padding: 15px; border-radius: 100px;
+      background: transparent; color: var(--black);
+      border: 1.5px solid rgba(0,0,0,.12);
+      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .2s;
+    }
+    .btn-wishlist:hover { border-color: var(--lila); color: var(--lila); }
+
+    /* DESCRIPCION */
+    .prod-desc { margin-bottom: 28px; }
+    .prod-desc p { font-size: 15px; font-weight: 300; color: var(--gray); line-height: 1.85; }
+
+    /* ACCORDION DETALLES */
+    .detalles-list { display: flex; flex-direction: column; }
+    .detalle-item { border-top: 1px solid var(--lila-pale); }
+    .detalle-item:last-child { border-bottom: 1px solid var(--lila-pale); }
+    .detalle-trigger {
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 0; background: none; border: none; cursor: pointer; text-align: left;
+    }
+    .detalle-trigger h4 { font-size: 14px; font-weight: 600; }
+    .detalle-icon {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1px solid var(--lila-pale);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: transform .3s, background .2s;
+    }
+    .detalle-item.open .detalle-icon { transform: rotate(45deg); background: var(--lila); border-color: var(--lila); }
+    .detalle-icon svg { width: 11px; height: 11px; color: var(--lila); transition: color .2s; }
+    .detalle-item.open .detalle-icon svg { color: white; }
+    .detalle-body { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+    .detalle-body p, .detalle-body ul {
+      font-size: 14px; color: var(--gray); line-height: 1.75;
+      padding-bottom: 16px;
+    }
+    .detalle-body ul { padding-left: 18px; }
+    .detalle-body li { margin-bottom: 4px; }
+
+    /* ── PRODUCTOS RELACIONADOS ── */
+    #relacionados {
+      background: var(--lila-ghost);
+      padding: 80px 60px;
+    }
+    .rel-inner { max-width: 1200px; margin: 0 auto; }
+    .rel-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 40px;
+    }
+    .rel-header h2 { font-family: 'Playfair Display', serif; font-size: 32px; font-style: italic; }
+    .rel-header a { font-size: 14px; font-weight: 600; color: var(--lila); text-decoration: none; }
+    .rel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .rel-card { cursor: pointer; text-decoration: none; color: inherit; }
+    .rel-img {
+      border-radius: 16px; overflow: hidden; aspect-ratio: 3/4;
+      background: var(--nude); margin-bottom: 14px;
+      border: 2px dashed var(--lila-pale);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; transition: transform .4s;
+    }
+    .rel-card:hover .rel-img { transform: scale(1.02); }
+    .rel-img .ph-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--lila-pale); display: flex; align-items: center; justify-content: center; }
+    .rel-img p { font-size: 12px; color: var(--gray); font-style: italic; }
+    .rel-sub { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--lila); margin-bottom: 4px; }
+    .rel-name { font-family: 'Playfair Display', serif; font-size: 18px; font-style: italic; margin-bottom: 4px; }
+    .rel-price { font-size: 14px; color: var(--gray); font-style: italic; }
+
+    /* ── VUELA STRIP ── */
+    .vuela-strip { background: var(--nude); padding: 20px 40px; display: flex; align-items: center; justify-content: center; gap: 16px; }
+    .vuela-strip p { font-size: 14px; color: var(--gray); }
+    .vuela-strip a { font-size: 14px; font-weight: 700; color: var(--lila); text-decoration: none; border-bottom: 2px solid var(--lila-pale); padding-bottom: 2px; transition: border-color .2s; }
+    .vuela-strip a:hover { border-color: var(--lila); }
+
+    /* ── FOOTER ── */
+    footer { background: var(--black); padding: 64px 60px 40px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; }
+    .footer-brand-logo { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: white; margin-bottom: 8px; }
+    .footer-brand-logo em { font-style: italic; color: var(--lila-soft); }
+    .footer-tagline { font-size: 13px; font-style: italic; color: rgba(255,255,255,.3); margin-bottom: 24px; }
+    .footer-col h4 { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.9); font-weight: 700; margin-bottom: 16px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 10px; }
+    .footer-col a { font-size: 14px; color: rgba(255,255,255,.4); text-decoration: none; transition: color .2s; }
+    .footer-col a:hover { color: var(--lila-soft); }
+    .footer-bottom { max-width: 1200px; margin: 48px auto 0; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.08); display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: rgba(255,255,255,.25); }
+    .footer-bottom a { color: var(--lila-soft); text-decoration: none; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--black); color: white;
+      padding: 14px 24px; border-radius: 100px;
+      font-size: 14px; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+      z-index: 400; opacity: 0;
+      transition: opacity .3s, transform .3s;
+      white-space: nowrap;
+      box-shadow: 0 8px 32px rgba(0,0,0,.2);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lila); flex-shrink: 0; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 16px 24px; }
+      nav ul { display: none; }
+      nav ul.nav-open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: white; padding: 16px; border-bottom: 1px solid var(--lila-pale); gap: 0; }
+      nav ul.nav-open a { display: block; padding: 12px 16px; font-size: 15px; border-bottom: 1px solid rgba(0,0,0,.05); }
+      .nav-mobile-bar { display: flex; }
+      .breadcrumb { padding: 90px 24px 0; }
+      .producto-main { grid-template-columns: 1fr; gap: 40px; padding: 24px 24px 80px; }
+      .rel-grid { grid-template-columns: 1fr 1fr; }
+      #relacionados { padding: 60px 24px; }
+      footer { padding: 48px 24px 32px; }
+      .footer-inner { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+      .cart-panel { width: 100vw; }
+    }
+    @media (max-width: 480px) {
+      .rel-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- CARRITO OVERLAY -->
+<div class="cart-overlay" id="cart-overlay" onclick="cerrarCarrito()"></div>
+
+<!-- CARRITO PANEL -->
+<div class="cart-panel" id="cart-panel">
+  <div class="cart-header">
+    <h3>Mi carrito</h3>
+    <button class="cart-close" onclick="cerrarCarrito()">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div class="cart-items" id="cart-items">
+    <!-- Se llena con JS -->
+  </div>
+
+  <div class="cart-footer" id="cart-footer" style="display:none;">
+    <div class="cart-subtotal">
+      <span>Subtotal</span>
+      <strong id="cart-total">$0</strong>
+    </div>
+    <p class="cart-note">Envío calculado al finalizar la compra. MercadoPago disponible al lanzamiento.</p>
+    <button class="btn-checkout" onclick="irCheckout()">
+      Ir a pagar
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+    <button class="btn-seguir" onclick="cerrarCarrito()">← Seguir comprando</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="../index.html" class="nav-logo">rev<em>la</em></a>
+  <ul id="nav-menu">
+    <li><a href="../index.html">Inicio</a></li>
+    <li><a href="../colecciones.html">Colecciones</a></li>
+    <li><a href="../sobre.html">Sobre Revla</a></li>
+    <li><a href="../contacto.html">Contacto</a></li>
+    <li><a href="../login.html" class="nav-cta">Mi cuenta</a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button class="nav-cart-btn" onclick="abrirCarrito()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Carrito
+      <span class="cart-count" id="cart-count">0</span>
+    </button>
+    <div class="nav-mobile-bar">
+      <button class="nav-cart-btn" onclick="abrirCarrito()" style="padding:8px 12px;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-count" id="cart-count-mobile">0</span>
+      </button>
+      <button class="nav-menu-btn" onclick="document.getElementById('nav-menu').classList.toggle('nav-open')">☰</button>
+    </div>
+  </div>
+</nav>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="../index.html">Inicio</a>
+  <span>›</span>
+  <a href="../colecciones.html">Colecciones</a>
+  <span>›</span>
+  <a href="../colecciones.html">Cápsula 01</a>
+  <span>›</span>
+  <span style="color:var(--black);font-weight:500;">El acordeón</span>
+</div>
+
+<!-- PRODUCTO -->
+<main class="producto-main">
+
+  <!-- GALERÍA -->
+  <div class="galeria">
+    <div class="galeria-main" id="galeria-main">
+      <span class="prod-badge-new">Próximamente</span>
+      <img id="img-principal" src="../imagen/capsula1/capsula1a/prod-01-a.jpg" alt="El acordeón" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">
+    </div>
+    <div class="galeria-thumbs">
+      <div class="thumb active" onclick="cambiarImagen(this, '../imagen/capsula1/capsula1a/prod-01-a.jpg')" style="cursor:pointer;">
+        <img src="../imagen/capsula1/capsula1a/prod-01-a.jpg" alt="Vista A" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+      </div>
+      <div class="thumb" onclick="cambiarImagen(this, '../imagen/capsula1/capsula1a/prod-01-b.jpg')" style="cursor:pointer;">
+        <img src="../imagen/capsula1/capsula1a/prod-01-b.jpg" alt="Vista B" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+      </div>
+      <div class="thumb" onclick="cambiarImagen(this, '../imagen/capsula1/capsula1a/prod-01-c.jpg')" style="cursor:pointer;">
+        <img src="../imagen/capsula1/capsula1a/prod-01-c.jpg" alt="Vista C" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+      </div>
+      <div class="thumb" onclick="cambiarImagen(this, '../imagen/capsula1/capsula1a/prod-01-d.jpg')" style="cursor:pointer;">
+        <img src="../imagen/capsula1/capsula1a/prod-01-d.jpg" alt="Vista D" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="producto-info">
+    <p class="prod-eyebrow">Cápsula 01 — Sin molde</p>
+    <h1 class="prod-nombre">El <em>acordeón</em></h1>
+    <p class="prod-capsula">Top · Parte de <a href="../colecciones.html">Cápsula 01</a></p>
+
+    <p class="prod-precio">
+      <span class="precio-tbd">Precio por confirmar</span>
+    </p>
+    <!-- Cuando tengas precio, reemplaza por:
+    <p class="prod-precio">$49.990</p>
+    -->
+
+    <div class="prod-divider"></div>
+
+    <div class="prod-desc">
+      <p>Top con sistema de amarres en la espalda que permite ajustar la cobertura y el nivel de soporte. Se fruce, se suelta, se adapta — sin que tengas que cambiar de prenda entre clases.</p>
+    </div>
+
+    <!-- TALLA -->
+    <div style="margin-bottom:28px;">
+      <div class="talla-label">
+        <span>Talla <span id="talla-selected" style="color:var(--black);font-weight:700;"></span></span>
+        <a href="#">Guía de tallas</a>
+      </div>
+      <div class="tallas">
+        <button class="talla-btn" onclick="seleccionarTalla(this, 'XS')">XS</button>
+        <button class="talla-btn" onclick="seleccionarTalla(this, 'S')">S</button>
+        <button class="talla-btn" onclick="seleccionarTalla(this, 'M')">M</button>
+        <button class="talla-btn" onclick="seleccionarTalla(this, 'L')">L</button>
+        <button class="talla-btn" onclick="seleccionarTalla(this, 'XL')">XL</button>
+        <button class="talla-btn" onclick="seleccionarTalla(this, 'XXL')">XXL</button>
+      </div>
+    </div>
+
+    <!-- COLOR -->
+    <div style="margin-bottom:28px;">
+      <div class="color-label">Color <span id="color-selected"></span></div>
+      <div class="colores">
+        <button class="color-btn" title="Negro" onclick="seleccionarColor(this, 'Negro')"></button>
+        <button class="color-btn" title="Morado oscuro" onclick="seleccionarColor(this, 'Morado oscuro')"></button>
+        <button class="color-btn" title="Rosa pastel" onclick="seleccionarColor(this, 'Rosa pastel')"></button>
+        <button class="color-btn" title="Café" onclick="seleccionarColor(this, 'Café')"></button>
+      </div>
+    </div>
+
+    <!-- BOTONES -->
+    <div class="compra-btns">
+      <button class="btn-agregar" id="btn-agregar" onclick="agregarAlCarrito()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Agregar al carrito
+      </button>
+      <button class="btn-wishlist">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Guardar en favoritos
+      </button>
+    </div>
+
+    <!-- DETALLES ACCORDION -->
+    <div class="detalles-list">
+      <div class="detalle-item">
+        <button class="detalle-trigger" onclick="toggleDetalle(this)">
+          <h4>Cómo se usa</h4>
+          <div class="detalle-icon"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        </button>
+        <div class="detalle-body">
+          <ul>
+            <li>Abre los amarres para mayor libertad de movimiento</li>
+            <li>Apriétalos para mayor soporte en aéreas</li>
+            <li>Compatible con pole, lira y heels</li>
+          </ul>
+        </div>
+      </div>
+      <div class="detalle-item">
+        <button class="detalle-trigger" onclick="toggleDetalle(this)">
+          <h4>Materiales</h4>
+          <div class="detalle-icon"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        </button>
+        <div class="detalle-body">
+          <ul>
+            <li>80% Poliamida / 20% Elastano</li>
+            <li>Supplex de alta resistencia</li>
+            <li>Costuras planas, sin rozaduras</li>
+          </ul>
+        </div>
+      </div>
+      <div class="detalle-item">
+        <button class="detalle-trigger" onclick="toggleDetalle(this)">
+          <h4>Cuidado de la prenda</h4>
+          <div class="detalle-icon"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        </button>
+        <div class="detalle-body">
+          <ul>
+            <li>Lavar a mano o en bolsa de malla, agua fría</li>
+            <li>No usar secadora</li>
+            <li>No planchar directamente sobre el elástico</li>
+          </ul>
+        </div>
+      </div>
+      <div class="detalle-item">
+        <button class="detalle-trigger" onclick="toggleDetalle(this)">
+          <h4>Envíos y devoluciones</h4>
+          <div class="detalle-icon"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        </button>
+        <div class="detalle-body">
+          <p>Envíos a todo Chile. Retiro disponible en Espacio Vuela, Providencia. Política de cambios disponible al lanzamiento.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- RELACIONADOS -->
+<section id="relacionados">
+  <div class="rel-inner">
+    <div class="rel-header">
+      <h2>También de la Cápsula 01</h2>
+      <a href="../colecciones.html">Ver todos →</a>
+    </div>
+    <div class="rel-grid">
+      <a href="../capsula1/prodlarg.html" class="rel-card">
+        <div class="rel-img">
+          <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
+          <p>../imagen/capsula1/capsula1a/prod-01-a.jpg</p>
+        </div>
+        <p class="rel-sub">Short · Calza</p>
+        <h3 class="rel-name">El convertible</h3>
+        <p class="rel-price">Precio por confirmar</p>
+      </a>
+      <a href="../capsula1/prodshort.html" class="rel-card">
+        <div class="rel-img">
+          <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
+          <p>../imagen/capsula1/capsula1a/prod-01-a.jpg</p>
+        </div>
+        <p class="rel-sub">Calza</p>
+        <h3 class="rel-name">La amarre</h3>
+        <p class="rel-price">Precio por confirmar</p>
+      </a>
+      <a href="../capsula1/prodpant.html" class="rel-card">
+        <div class="rel-img">
+          <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
+          <p>../imagen/capsula1/capsula1a/prod-01-a.jpg</p>
+        </div>
+        <p class="rel-sub">Próximamente</p>
+        <h3 class="rel-name">Por definir</h3>
+        <p class="rel-price">Precio por confirmar</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- STRIP -->
+<div class="vuela-strip">
+  <svg width="16" height="16" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+  <p>Revla es parte del universo</p>
+  <a href="https://espaciovuela.cl" target="_blank">Espacio Vuela →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand-logo">rev<em>la</em></div>
+      <p class="footer-tagline">Ropa que obedece.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Tienda</h4>
+      <ul>
+        <li><a href="../colecciones.html">Colecciones</a></li>
+        <li><a href="#">Novedades</a></li>
+        <li><a href="#">Tallaje</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Revla</h4>
+      <ul>
+        <li><a href="../sobre.html">Sobre nosotras</a></li>
+        <li><a href="../contacto.html">Contacto</a></li>
+        <li><a href="https://espaciovuela.cl" target="_blank">Espacio Vuela</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Ayuda</h4>
+      <ul>
+        <li><a href="#">Envíos</a></li>
+        <li><a href="#">Devoluciones</a></li>
+        <li><a href="../login.html">Mi cuenta</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Revla. Todos los derechos reservados.</span>
+    <span>Una marca de <a href="https://espaciovuela.cl" target="_blank">Espacio Vuela</a></span>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-dot"></span>
+  <span id="toast-msg">Producto agregado al carrito</span>
+</div>
+
+<script>
+  // ── CARRITO STATE ──
+  let carrito = JSON.parse(localStorage.getItem('revla-carrito') || '[]');
+  let tallaSeleccionada = null;
+  let colorSeleccionado = null;
+
+  // ── NAV ──
+  window.addEventListener('scroll', () => {
+    document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
+  });
+  document.querySelectorAll('#nav-menu a').forEach(a => {
+    a.addEventListener('click', () => document.getElementById('nav-menu').classList.remove('nav-open'));
+  });
+
+  // ── TALLA ──
+  function seleccionarTalla(btn, talla) {
+    document.querySelectorAll('.talla-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    tallaSeleccionada = talla;
+    document.getElementById('talla-selected').textContent = '— ' + talla;
+  }
+  function seleccionarColor(btn, color) {
+    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    colorSeleccionado = color;
+    document.getElementById('color-selected').textContent = '— ' + color;
+  }
+
+  // ── CARRITO ──
+  function abrirCarrito() {
+    document.getElementById('cart-overlay').classList.add('open');
+    document.getElementById('cart-panel').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    renderCarrito();
+  }
+
+  function cerrarCarrito() {
+    document.getElementById('cart-overlay').classList.remove('open');
+    document.getElementById('cart-panel').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function renderCarrito() {
+    const container = document.getElementById('cart-items');
+    const footer = document.getElementById('cart-footer');
+
+    if (carrito.length === 0) {
+      container.innerHTML = `
+        <div class="cart-empty">
+          <div class="empty-icon">
+            <svg width="28" height="28" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </div>
+          <h4>Tu carrito está vacío</h4>
+          <p>Agrega prendas de la Cápsula 01 para empezar.</p>
+        </div>`;
+      footer.style.display = 'none';
+      return;
+    }
+
+    container.innerHTML = carrito.map((item, i) => `
+      <div class="cart-item">
+        <div class="cart-item-img">
+          <div class="ci-ph">
+            <svg width="24" height="24" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg>
+          </div>
+        </div>
+        <div class="cart-item-info">
+          <p class="ci-sub">${item.categoria}</p>
+          <p class="ci-name">${item.nombre}</p>
+          <p class="ci-talla">Talla: ${item.talla}${item.color ? " · " + item.color : ""}</p>
+          <div class="cart-item-bottom">
+            <span class="ci-price">${item.precio}</span>
+            <div class="ci-qty">
+              <button onclick="cambiarCantidad(${i}, -1)">−</button>
+              <span>${item.cantidad}</span>
+              <button onclick="cambiarCantidad(${i}, 1)">+</button>
+            </div>
+            <button class="ci-remove" onclick="eliminarItem(${i})">✕</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    footer.style.display = 'block';
+    document.getElementById('cart-total').textContent = calcularTotal();
+    actualizarContador();
+  }
+
+  function calcularTotal() {
+    const total = carrito.reduce((sum, item) => {
+      const precio = parseInt(item.precio.replace(/\D/g, '')) || 0;
+      return sum + precio * item.cantidad;
+    }, 0);
+    if (total === 0) return 'Por confirmar';
+    return '$' + total.toLocaleString('es-CL');
+  }
+
+  function cambiarCantidad(i, delta) {
+    carrito[i].cantidad = Math.max(1, carrito[i].cantidad + delta);
+    guardarCarrito();
+    renderCarrito();
+  }
+
+  function eliminarItem(i) {
+    carrito.splice(i, 1);
+    guardarCarrito();
+    renderCarrito();
+  }
+
+  function guardarCarrito() {
+    localStorage.setItem('revla-carrito', JSON.stringify(carrito));
+    actualizarContador();
+  }
+
+  function actualizarContador() {
+    const total = carrito.reduce((s, i) => s + i.cantidad, 0);
+    ['cart-count', 'cart-count-mobile'].forEach(id => {
+      const el = document.getElementById(id);
+      el.textContent = total;
+      el.classList.toggle('visible', total > 0);
+    });
+  }
+
+  function agregarAlCarrito() {
+    if (!tallaSeleccionada) {
+      mostrarToast('Selecciona una talla primero');
+      document.querySelector('.tallas').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    const existente = carrito.find(i => i.nombre === 'El convertible' && i.talla === tallaSeleccionada);
+    if (existente) {
+      existente.cantidad++;
+    } else {
+      carrito.push({
+        nombre: 'El acordeón',
+        categoria: 'Top',
+        talla: tallaSeleccionada,
+        color: colorSeleccionado,
+        precio: '$102',
+        cantidad: 1
+      });
+    }
+    guardarCarrito();
+    mostrarToast('✓ Agregado — talla ' + tallaSeleccionada + ' · ' + colorSeleccionado);
+    setTimeout(abrirCarrito, 600);
+  }
+
+  function mostrarToast(msg) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  function irCheckout() {
+    if(carrito.length === 0){ mostrarToast('Tu carrito está vacío'); return; }
+    window.location.href = 'checkout.html';
+  }
+
+  // ── ACCORDION DETALLES ──
+  function toggleDetalle(btn) {
+    const item = btn.closest('.detalle-item');
+    const body = item.querySelector('.detalle-body');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.detalle-item.open').forEach(i => {
+      i.classList.remove('open');
+      i.querySelector('.detalle-body').style.maxHeight = '0';
+    });
+    if (!isOpen) {
+      item.classList.add('open');
+      body.style.maxHeight = body.scrollHeight + 'px';
+    }
+  }
+
+  });
+
+  // Init
+  actualizarContador();
+</script>
+<script>
+  function cambiarImagen(thumb, src) {
+    document.getElementById('img-principal').src = src;
+    document.querySelectorAll('.thumb').forEach(x => x.classList.remove('active'));
+    thumb.classList.add('active');
+  }
+</script>
+</body>
+</html>

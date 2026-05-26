@@ -402,13 +402,9 @@
 
         <!-- PRODUCTOS -->
         <div class="productos-grid">
-          <a href="producto-convertible.html" class="producto-card" style="text-decoration:none;color:inherit;">
+          <a href="capsula1/prodlarg.html" class="producto-card" style="text-decoration:none;color:inherit;">
             <div class="producto-img-wrap">
-              <!-- <img src="images/prod-01-a.jpg" class="producto-img" alt="El convertible"> -->
-              <div class="producto-ph">
-                <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
-                <p>images/prod-01-a.jpg</p>
-              </div>
+              <img src="imagen/capsula1/productos/prodshort.jpg" class="producto-img" alt="El convertible">
               <span class="prod-badge">Pronto</span>
             </div>
             <div class="producto-info">
@@ -417,12 +413,9 @@
               <p class="prod-price tbd">Precio por confirmar</p>
             </div>
           </a>
-          <a href="producto-acordeon.html" class="producto-card" style="text-decoration:none;color:inherit;">
+          <a href="capsula1/prodtop.html" class="producto-card" style="text-decoration:none;color:inherit;">
             <div class="producto-img-wrap">
-              <div class="producto-ph">
-                <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
-                <p>images/prod-02-a.jpg</p>
-              </div>
+              <img src="imagen/capsula1/productos/prodtop.jpg" class="producto-img" alt="El acordeón">
               <span class="prod-badge">Pronto</span>
             </div>
             <div class="producto-info">
@@ -431,12 +424,9 @@
               <p class="prod-price tbd">Precio por confirmar</p>
             </div>
           </a>
-          <a href="producto-amarre.html" class="producto-card" style="text-decoration:none;color:inherit;">
+          <a href="capsula1/prodshort.html" class="producto-card" style="text-decoration:none;color:inherit;">
             <div class="producto-img-wrap">
-              <div class="producto-ph">
-                <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
-                <p>images/prod-03-a.jpg</p>
-              </div>
+              <img src="imagen/capsula1/productos/prodlarg.jpg" class="producto-img" alt="La amarre">
               <span class="prod-badge">Pronto</span>
             </div>
             <div class="producto-info">
@@ -445,12 +435,9 @@
               <p class="prod-price tbd">Precio por confirmar</p>
             </div>
           </a>
-          <a href="producto-04.html" class="producto-card" style="text-decoration:none;color:inherit;">
+          <a href="capsula1/prodpant.html" class="producto-card" style="text-decoration:none;color:inherit;">
             <div class="producto-img-wrap">
-              <div class="producto-ph">
-                <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
-                <p>images/prod-04-a.jpg</p>
-              </div>
+              <img src="imagen/capsula1/productos/prodpant.jpg" class="producto-img" alt="Por definir">
               <span class="prod-badge">Pronto</span>
             </div>
             <div class="producto-info">
@@ -642,6 +629,15 @@
   function mostrarToast(msg){var t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3000);}
   actualizarContador();
 
+</script>
+<script>
+  // Abrir cápsula según hash de URL
+  window.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash; // e.g. #cap-01
+    if (hash && document.getElementById(hash.replace('#',''))) {
+      setTimeout(() => toggleCap(hash.replace('#','')), 300);
+    }
+  });
 </script>
 </body>
 </html>
