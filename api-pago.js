@@ -6,17 +6,19 @@ require('dotenv').config();
 
 const express    = require('express');
 const cors       = require('cors');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
-const DOMINIO      = process.env.DOMINIO;
-const GMAIL_USER   = process.env.GMAIL_USER;
-const GMAIL_PASS   = process.env.GMAIL_PASS;
+const ACCESS_TOKEN   = process.env.ACCESS_TOKEN;
+const DOMINIO        = process.env.DOMINIO;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+const VENDEDOR_EMAIL = 'revuela.store@gmail.com';
+const FROM_EMAIL     = 'Revla <notificaciones@revla.cl>';
 
 if (!ACCESS_TOKEN || !DOMINIO) {
   console.error('❌ Falta el archivo .env o las variables ACCESS_TOKEN / DOMINIO');
@@ -24,23 +26,15 @@ if (!ACCESS_TOKEN || !DOMINIO) {
 }
 
 const client = new MercadoPagoConfig({ accessToken: ACCESS_TOKEN });
+const resend = new Resend(RESEND_API_KEY);
 
 // ── Almacén temporal de pedidos (preference_id → datos) ──
 const pedidosTemp = new Map();
 
-// ── Transporter de correo ──
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  family: 4,
-  auth: { user: GMAIL_USER, pass: GMAIL_PASS }
-});
-
 // ── Correo al vendedor ──
 async function enviarCorreoVendedor(pago, pedido) {
   try {
-    const carrito  = pedido?.carrito || [];
+    const carrito   = pedido?.carrito || [];
     const comprador = pedido?.comprador || {};
 
     const itemsHTML = carrito.map(i => {
@@ -54,15 +48,15 @@ async function enviarCorreoVendedor(pago, pedido) {
     }).join('');
 
     const subtotal = carrito.reduce((s, i) => s + (parseInt(String(i.precio).replace(/\D/g, '')) || 0) * i.cantidad, 0);
-    const total = subtotal + (comprador.costoEnvio || 0);
+    const total    = subtotal + (comprador.costoEnvio || 0);
 
     const infoEnvio = comprador.tipoEnvio === 'retiro'
       ? 'Retiro en Espacio Vuela (gratis)'
       : `Despacho Bluexpress a: ${comprador.direccion}, ${comprador.ciudad}, ${comprador.region}`;
 
-    await transporter.sendMail({
-      from: `"Revla" <${GMAIL_USER}>`,
-      to: GMAIL_USER,
+    await resend.emails.send({
+      from:    FROM_EMAIL,
+      to:      VENDEDOR_EMAIL,
       subject: `🛍️ Nueva venta Revla — $${total.toLocaleString('es-CL')}`,
       html: `
         <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f5efe8">
@@ -128,15 +122,15 @@ async function enviarCorreoComprador(pago, pedido) {
     }).join('');
 
     const subtotal = carrito.reduce((s, i) => s + (parseInt(String(i.precio).replace(/\D/g, '')) || 0) * i.cantidad, 0);
-    const total = subtotal + (comprador.costoEnvio || 0);
+    const total    = subtotal + (comprador.costoEnvio || 0);
 
     const infoEnvio = comprador.tipoEnvio === 'retiro'
       ? 'Retiro en Espacio Vuela — nos contactaremos para coordinar.'
       : `Despacho Bluexpress a: ${comprador.direccion}, ${comprador.ciudad}, ${comprador.region}`;
 
-    await transporter.sendMail({
-      from: `"Revla" <${GMAIL_USER}>`,
-      to: comprador.email,
+    await resend.emails.send({
+      from:    FROM_EMAIL,
+      to:      comprador.email,
       subject: `¡Tu pedido Revla fue confirmado! 🛍️`,
       html: `
         <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f5efe8">
@@ -169,7 +163,7 @@ async function enviarCorreoComprador(pago, pedido) {
           </div>
 
           <div style="background:#f2eeff;border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
-            <p style="font-size:14px;color:#6b6570">¿Tienes dudas? Escríbenos a <a href="mailto:${GMAIL_USER}" style="color:#a183ff">${GMAIL_USER}</a></p>
+            <p style="font-size:14px;color:#6b6570">¿Tienes dudas? Escríbenos a <a href="mailto:${VENDEDOR_EMAIL}" style="color:#a183ff">${VENDEDOR_EMAIL}</a></p>
           </div>
 
           <p style="font-size:12px;color:#b0a8b5;text-align:center">ID de pago: ${pago.id}</p>
