@@ -6,8 +6,6 @@ require('dotenv').config();
 
 const express    = require('express');
 const cors       = require('cors');
-const fs         = require('fs');
-const path       = require('path');
 const { Resend } = require('resend');
 const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 
@@ -30,36 +28,9 @@ if (!ACCESS_TOKEN || !DOMINIO) {
 const client = new MercadoPagoConfig({ accessToken: ACCESS_TOKEN });
 const resend  = new Resend(RESEND_API_KEY);
 
-// ── Base de datos simple en archivo ──
-const DB_PATH = path.join('/tmp', 'pedidos.json');
-
-function cargarPedidos() {
-  try {
-    if (fs.existsSync(DB_PATH)) {
-      return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
-    }
-  } catch (e) {}
-  return {};
-}
-
-function guardarPedido(prefId, datos) {
-  try {
-    const db = cargarPedidos();
-    db[prefId] = { datos, ts: Date.now() };
-    fs.writeFileSync(DB_PATH, JSON.stringify(db));
-  } catch (e) {
-    console.error('❌ Error guardando pedido:', e.message);
-  }
-}
-
-function obtenerPedido(prefId) {
-  try {
-    const db = cargarPedidos();
-    return db[prefId]?.datos || null;
-  } catch (e) {
-    return null;
-  }
-}
+// ── Almacén en memoria ──
+const pedidosTemp = new Map();
+console.log('🔵 Proceso iniciado, PID:', process.pid);
 
 // ── Correo al vendedor ──
 async function enviarCorreoVendedor(pago, pedido) {
@@ -259,9 +230,9 @@ app.post('/crear-preferencia', async (req, res) => {
       },
     });
 
-    // Guardar pedido en archivo /tmp
-    guardarPedido(result.id, { carrito, comprador });
-    console.log('💾 Pedido guardado con preference_id:', result.id);
+    pedidosTemp.set(result.id, { carrito, comprador });
+    setTimeout(() => pedidosTemp.delete(result.id), 24 * 60 * 60 * 1000);
+    console.log('💾 Pedido guardado. PID:', process.pid, '| Map size:', pedidosTemp.size, '| ID:', result.id);
 
     res.json({
       init_point:         result.init_point,
@@ -295,7 +266,8 @@ app.post('/webhook', async (req, res) => {
     const pago = await paymentApi.get({ id: data.id });
 
     if (pago.status === 'approved') {
-      const pedido = obtenerPedido(pago.preference_id) || {};
+      console.log('💳 Pago aprobado. PID:', process.pid, '| Map size:', pedidosTemp.size, '| preference_id:', pago.preference_id);
+      const pedido = pedidosTemp.get(pago.preference_id) || {};
       console.log('📦 Pedido recuperado:', JSON.stringify(pedido).slice(0, 150));
       await enviarCorreoVendedor(pago, pedido);
       await enviarCorreoComprador(pago, pedido);
