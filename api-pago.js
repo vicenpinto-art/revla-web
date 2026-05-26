@@ -6,6 +6,8 @@ require('dotenv').config();
 
 const express    = require('express');
 const cors       = require('cors');
+const fs         = require('fs');
+const path       = require('path');
 const { Resend } = require('resend');
 const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 
@@ -27,6 +29,37 @@ if (!ACCESS_TOKEN || !DOMINIO) {
 
 const client = new MercadoPagoConfig({ accessToken: ACCESS_TOKEN });
 const resend  = new Resend(RESEND_API_KEY);
+
+// ── Base de datos simple en archivo ──
+const DB_PATH = path.join('/tmp', 'pedidos.json');
+
+function cargarPedidos() {
+  try {
+    if (fs.existsSync(DB_PATH)) {
+      return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    }
+  } catch (e) {}
+  return {};
+}
+
+function guardarPedido(prefId, datos) {
+  try {
+    const db = cargarPedidos();
+    db[prefId] = { datos, ts: Date.now() };
+    fs.writeFileSync(DB_PATH, JSON.stringify(db));
+  } catch (e) {
+    console.error('❌ Error guardando pedido:', e.message);
+  }
+}
+
+function obtenerPedido(prefId) {
+  try {
+    const db = cargarPedidos();
+    return db[prefId]?.datos || null;
+  } catch (e) {
+    return null;
+  }
+}
 
 // ── Correo al vendedor ──
 async function enviarCorreoVendedor(pago, pedido) {
@@ -198,8 +231,10 @@ app.post('/crear-preferencia', async (req, res) => {
     });
   }
 
-  // Guardar pedido completo en external_reference como JSON
-  const pedidoData = JSON.stringify({ carrito, comprador });
+  const resumenPedido = carrito.map(i => `${i.nombre} T:${i.talla} x${i.cantidad}`).join(', ');
+  const infoEnvio = comprador
+    ? (comprador.tipoEnvio === 'retiro' ? 'Retiro en Espacio Vuela' : `Despacho: ${comprador.direccion}, ${comprador.ciudad}`)
+    : '';
 
   try {
     const preference = new Preference(client);
@@ -219,10 +254,14 @@ app.post('/crear-preferencia', async (req, res) => {
         },
         auto_return:          'approved',
         statement_descriptor: 'REVLA',
-        external_reference:   pedidoData,
+        external_reference:   `revla-${Date.now()} | ${resumenPedido} | ${infoEnvio}`,
         notification_url:     `${DOMINIO}/webhook`,
       },
     });
+
+    // Guardar pedido en archivo /tmp
+    guardarPedido(result.id, { carrito, comprador });
+    console.log('💾 Pedido guardado con preference_id:', result.id);
 
     res.json({
       init_point:         result.init_point,
@@ -236,7 +275,6 @@ app.post('/crear-preferencia', async (req, res) => {
 });
 
 // ── POST /webhook ──
-// Set para evitar procesar el mismo pago dos veces
 const pagosYaProcesados = new Set();
 
 app.post('/webhook', async (req, res) => {
@@ -246,7 +284,6 @@ app.post('/webhook', async (req, res) => {
     const { type, data } = req.body;
     if (type !== 'payment' || !data?.id) return;
 
-    // Evitar duplicados
     if (pagosYaProcesados.has(data.id)) {
       console.log('⚠️ Pago ya procesado, ignorando:', data.id);
       return;
@@ -258,15 +295,8 @@ app.post('/webhook', async (req, res) => {
     const pago = await paymentApi.get({ id: data.id });
 
     if (pago.status === 'approved') {
-      // Recuperar datos del pedido desde external_reference
-      let pedido = {};
-      try {
-        pedido = JSON.parse(pago.external_reference || '{}');
-      } catch (e) {
-        console.error('⚠️ No se pudo parsear external_reference:', pago.external_reference);
-      }
-
-      console.log('📦 Pedido recuperado:', JSON.stringify(pedido).slice(0, 100));
+      const pedido = obtenerPedido(pago.preference_id) || {};
+      console.log('📦 Pedido recuperado:', JSON.stringify(pedido).slice(0, 150));
       await enviarCorreoVendedor(pago, pedido);
       await enviarCorreoComprador(pago, pedido);
     }
