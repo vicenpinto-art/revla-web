@@ -257,7 +257,15 @@ app.post('/webhook', async (req, res) => {
 
     console.log('💳 Pago:', pago.status, '| Payer:', pago.payer?.email, '| Items:', pago.additional_info?.items?.length || 0);
 
-    if (pago.status === 'approved') {
+    console.log('🔍 pago completo:', JSON.stringify({
+  id: pago.id,
+  status: pago.status,
+  preference_id: pago.preference_id,
+  external_reference: pago.external_reference,
+  payer: pago.payer,
+  additional_info: pago.additional_info?.items?.slice(0,2)
+}));
+if (pago.status === 'approved') {
       const carrito = pago.additional_info?.items || [];
       await enviarCorreoVendedor(pago, carrito);
       await enviarCorreoComprador(pago, carrito);
