@@ -163,9 +163,27 @@
     '</div>' +
     (pago_id ? '<p class="mp-params">ID de pago: ' + pago_id + '</p>' : '');
 
-  // Si el pago fue exitoso, vacía el carrito definitivamente
+  // Si el pago fue exitoso, vacía el carrito y actualiza el pedido en Supabase
   if (estado === 'exitoso') {
     localStorage.removeItem('revla-carrito');
+
+    // Actualizar estado del pedido a 'confirmado'
+    var pedidoId = localStorage.getItem('revla-ultimo-pedido');
+    if (pedidoId) {
+      var sdkScript = document.createElement('script');
+      sdkScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+      sdkScript.onload = async function () {
+        try {
+          var db = supabase.createClient(
+            'https://rwkkfumsuusmglwvsrrq.supabase.co',
+            'sb_publishable_dY5jJk49qHdepDmzgTI0SA_LxxyqD23'
+          );
+          await db.from('pedidos').update({ estado: 'confirmado' }).eq('id', pedidoId);
+          localStorage.removeItem('revla-ultimo-pedido');
+        } catch(e) { console.warn('No se pudo actualizar pedido:', e); }
+      };
+      document.head.appendChild(sdkScript);
+    }
   }
 </script>
 </body>

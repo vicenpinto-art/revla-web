@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi cuenta — Revla</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --lila: #a183ff; --lila-soft: #b9a2ff; --lila-pale: #e0d6ff;
+      --lila-ghost: #f2eeff; --nude: #f5efe8; --nude2: #ede4d9;
+      --black: #1a1718; --gray: #6b6570;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; background: var(--nude); color: var(--black); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* NAV simple */
+    nav {
+      background: rgba(255,255,255,0.96); backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(161,131,255,0.15);
+      padding: 18px 40px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; text-decoration: none; color: var(--black); }
+    .nav-logo em { font-style: italic; color: var(--lila); }
+    .nav-back { font-size: 14px; color: var(--gray); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color .2s; }
+    .nav-back:hover { color: var(--lila); }
+    @media (max-width: 480px) { nav { padding: 14px 20px; } }
+
+    /* LAYOUT */
+    .cuenta-wrap {
+      max-width: 860px; margin: 0 auto;
+      padding: 48px 24px 80px;
+      display: grid; grid-template-columns: 260px 1fr; gap: 32px; align-items: start;
+    }
+    @media (max-width: 720px) { .cuenta-wrap { grid-template-columns: 1fr; padding: 24px 16px 60px; } }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 88px; }
+    .perfil-card {
+      background: white; border-radius: 20px; padding: 28px 24px;
+      box-shadow: 0 2px 20px rgba(0,0,0,.06); text-align: center; margin-bottom: 16px;
+    }
+    .avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--lila), var(--lila-soft));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 700; color: white; margin: 0 auto 14px;
+    }
+    .perfil-nombre { font-family: 'Playfair Display', serif; font-size: 20px; font-style: italic; margin-bottom: 4px; }
+    .perfil-email { font-size: 12px; color: var(--gray); margin-bottom: 20px; }
+    .sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 4px; text-align: left; }
+    .sidebar-nav li a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 12px;
+      text-decoration: none; font-size: 14px; font-weight: 500; color: var(--gray);
+      transition: all .2s;
+    }
+    .sidebar-nav li a:hover { background: var(--lila-ghost); color: var(--lila); }
+    .sidebar-nav li a.active { background: var(--lila-ghost); color: var(--lila); font-weight: 700; }
+    .sidebar-nav li a svg { flex-shrink: 0; }
+    .btn-logout {
+      width: 100%; padding: 11px; margin-top: 16px;
+      background: transparent; border: 1.5px solid rgba(0,0,0,.1);
+      border-radius: 100px; font-family: 'Outfit', sans-serif;
+      font-size: 13px; font-weight: 600; color: var(--gray);
+      cursor: pointer; transition: all .2s;
+    }
+    .btn-logout:hover { border-color: #e05; color: #e05; }
+
+    /* CONTENIDO */
+    .seccion { display: none; }
+    .seccion.activa { display: block; }
+    .sec-titulo {
+      font-family: 'Playfair Display', serif; font-size: 28px;
+      font-style: italic; margin-bottom: 24px; color: var(--black);
+    }
+
+    /* CARD BASE */
+    .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 2px 20px rgba(0,0,0,.06); margin-bottom: 16px; }
+
+    /* PEDIDOS */
+    .pedido-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+    .pedido-num { font-size: 12px; color: var(--gray); }
+    .pedido-num strong { color: var(--black); font-size: 14px; }
+    .badge {
+      padding: 5px 14px; border-radius: 100px;
+      font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+    }
+    .badge-pendiente  { background: #fef9c3; color: #854d0e; }
+    .badge-confirmado { background: #dbeafe; color: #1e40af; }
+    .badge-en_camino  { background: #fed7aa; color: #9a3412; }
+    .badge-entregado  { background: #dcfce7; color: #166534; }
+    .pedido-items { border-top: 1px solid var(--lila-pale); padding-top: 14px; margin-top: 4px; }
+    .pedido-item { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; color: var(--gray); }
+    .pedido-item strong { color: var(--black); }
+    .pedido-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; border-top: 1px solid var(--lila-pale); padding-top: 12px; margin-top: 8px; }
+    .tracking-box {
+      background: var(--lila-ghost); border: 1px solid var(--lila-pale);
+      border-radius: 14px; padding: 14px 18px; margin-top: 16px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .tracking-box svg { flex-shrink: 0; stroke: var(--lila); }
+    .tracking-box p { font-size: 13px; color: var(--gray); line-height: 1.6; }
+    .tracking-box strong { color: var(--black); }
+    .entregado-box {
+      background: #f0fdf4; border: 1px solid #bbf7d0;
+      border-radius: 14px; padding: 14px 18px; margin-top: 16px;
+      font-size: 14px; color: #166534; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* DIRECCIONES */
+    .dir-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .dir-grid { grid-template-columns: 1fr; } }
+    .dir-card {
+      background: white; border: 1.5px solid var(--lila-pale);
+      border-radius: 16px; padding: 20px;
+      position: relative; transition: border-color .2s;
+    }
+    .dir-card.principal { border-color: var(--lila); }
+    .dir-principal-badge {
+      position: absolute; top: 14px; right: 14px;
+      background: var(--lila-pale); color: var(--lila);
+      font-size: 10px; font-weight: 700; letter-spacing: .05em;
+      text-transform: uppercase; padding: 3px 10px; border-radius: 100px;
+    }
+    .dir-nombre { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+    .dir-texto { font-size: 13px; color: var(--gray); line-height: 1.7; }
+    .dir-acciones { display: flex; gap: 8px; margin-top: 14px; }
+    .btn-sm {
+      padding: 7px 16px; border-radius: 100px; font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .btn-sm-lila { background: var(--lila-ghost); color: var(--lila); border: none; }
+    .btn-sm-lila:hover { background: var(--lila-pale); }
+    .btn-sm-danger { background: transparent; color: #e05; border: 1px solid rgba(238,0,85,.2); }
+    .btn-sm-danger:hover { background: rgba(238,0,85,.06); }
+
+    /* FORM DIRECCIÓN */
+    .form-dir { background: white; border-radius: 20px; padding: 28px; box-shadow: 0 2px 20px rgba(0,0,0,.06); margin-bottom: 20px; display: none; }
+    .form-dir.visible { display: block; }
+    .form-dir h4 { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-full { grid-column: 1 / -1; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 11px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .05em; }
+    .form-group input, .form-group select {
+      padding: 11px 14px; border-radius: 12px;
+      border: 1.5px solid var(--lila-pale);
+      font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--black);
+      outline: none; transition: border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--lila); }
+    .form-check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--gray); cursor: pointer; }
+    .form-check input { width: 16px; height: 16px; accent-color: var(--lila); cursor: pointer; }
+    @media (max-width: 480px) { .form-grid-2 { grid-template-columns: 1fr; } .form-full { grid-column: 1; } }
+    .btn-guardar {
+      padding: 13px 28px; border-radius: 100px; background: var(--lila); color: white;
+      border: none; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: transform .2s, box-shadow .2s;
+    }
+    .btn-guardar:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(161,131,255,.4); }
+    .btn-cancelar {
+      padding: 13px 28px; border-radius: 100px; background: transparent; color: var(--gray);
+      border: 1.5px solid var(--nude2); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; margin-left: 10px; transition: all .2s;
+    }
+    .btn-cancelar:hover { border-color: var(--lila); color: var(--lila); }
+    .btn-nueva-dir {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: 100px;
+      border: 1.5px dashed var(--lila-pale); background: transparent;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: var(--lila);
+      cursor: pointer; transition: all .2s; margin-bottom: 20px;
+    }
+    .btn-nueva-dir:hover { border-color: var(--lila); background: var(--lila-ghost); }
+
+    /* FAVORITOS */
+    .fav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .fav-grid { grid-template-columns: 1fr; } }
+    .fav-card {
+      background: white; border: 1.5px solid var(--lila-pale); border-radius: 16px;
+      padding: 20px; display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .fav-info { flex: 1; }
+    .fav-cat { font-size: 11px; color: var(--lila); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+    .fav-nombre { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+    .fav-precio { font-size: 14px; color: var(--gray); }
+    .btn-fav-remove { background: none; border: none; cursor: pointer; color: var(--gray); padding: 4px; transition: color .2s; }
+    .btn-fav-remove:hover { color: #e05; }
+
+    /* PERFIL */
+    .perfil-form { display: flex; flex-direction: column; gap: 16px; }
+
+    /* VACÍO */
+    .vacio {
+      text-align: center; padding: 48px 24px;
+      background: white; border-radius: 20px;
+      box-shadow: 0 2px 20px rgba(0,0,0,.06);
+    }
+    .vacio-icon { width: 72px; height: 72px; border-radius: 50%; background: var(--lila-ghost); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .vacio h4 { font-family: 'Playfair Display', serif; font-size: 20px; font-style: italic; margin-bottom: 8px; }
+    .vacio p { font-size: 14px; color: var(--gray); line-height: 1.6; }
+
+    /* TOAST */
+    .toast { position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--black);color:white;padding:14px 24px;border-radius:100px;font-size:14px;font-weight:600;z-index:400;opacity:0;transition:opacity .3s,transform .3s;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.2); }
+    .toast.show { opacity:1;transform:translateX(-50%) translateY(0); }
+
+    .spinner { display:inline-block;width:20px;height:20px;border:2px solid rgba(161,131,255,.3);border-top-color:var(--lila);border-radius:50%;animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-wrap { text-align: center; padding: 60px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index-real.html" class="nav-logo">rev<em>la</em></a>
+  <a href="index-real.html" class="nav-back">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Volver
+  </a>
+</nav>
+
+<div class="cuenta-wrap" id="cuenta-wrap" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="perfil-card">
+      <div class="avatar" id="avatar">?</div>
+      <p class="perfil-nombre" id="perfil-nombre">—</p>
+      <p class="perfil-email" id="perfil-email">—</p>
+      <ul class="sidebar-nav">
+        <li><a href="#" class="active" data-sec="pedidos" onclick="mostrarSeccion('pedidos',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          Mis pedidos
+        </a></li>
+        <li><a href="#" data-sec="direcciones" onclick="mostrarSeccion('direcciones',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Direcciones
+        </a></li>
+        <li><a href="#" data-sec="favoritos" onclick="mostrarSeccion('favoritos',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          Favoritos
+        </a></li>
+        <li><a href="#" data-sec="perfil" onclick="mostrarSeccion('perfil',this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Mi perfil
+        </a></li>
+      </ul>
+      <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main>
+
+    <!-- PEDIDOS -->
+    <section class="seccion activa" id="sec-pedidos">
+      <h2 class="sec-titulo">Mis pedidos</h2>
+      <div id="pedidos-contenido"><div class="loading-wrap"><div class="spinner"></div></div></div>
+    </section>
+
+    <!-- DIRECCIONES -->
+    <section class="seccion" id="sec-direcciones">
+      <h2 class="sec-titulo">Mis direcciones</h2>
+      <button class="btn-nueva-dir" onclick="mostrarFormDir()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        Agregar dirección
+      </button>
+      <div class="form-dir" id="form-dir">
+        <h4 id="form-dir-titulo">Nueva dirección</h4>
+        <div class="form-grid-2">
+          <div class="form-group form-full">
+            <label>Nombre del destinatario</label>
+            <input type="text" id="dir-nombre" placeholder="Nombre completo">
+          </div>
+          <div class="form-group form-full">
+            <label>Dirección</label>
+            <input type="text" id="dir-direccion" placeholder="Calle, número, depto">
+          </div>
+          <div class="form-group">
+            <label>Ciudad</label>
+            <input type="text" id="dir-ciudad" placeholder="Santiago">
+          </div>
+          <div class="form-group">
+            <label>Región</label>
+            <input type="text" id="dir-region" placeholder="Metropolitana">
+          </div>
+          <div class="form-group">
+            <label>Código postal</label>
+            <input type="text" id="dir-cp" placeholder="7500000">
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" id="dir-tel" placeholder="+56 9 xxxx xxxx">
+          </div>
+          <div class="form-full">
+            <label class="form-check">
+              <input type="checkbox" id="dir-principal"> Usar como dirección principal
+            </label>
+          </div>
+        </div>
+        <div style="margin-top:20px">
+          <button class="btn-guardar" onclick="guardarDireccion()" id="btn-guardar-dir">Guardar</button>
+          <button class="btn-cancelar" onclick="ocultarFormDir()">Cancelar</button>
+        </div>
+      </div>
+      <div id="dirs-contenido"><div class="loading-wrap"><div class="spinner"></div></div></div>
+    </section>
+
+    <!-- FAVORITOS -->
+    <section class="seccion" id="sec-favoritos">
+      <h2 class="sec-titulo">Mis favoritos</h2>
+      <div id="favs-contenido"><div class="loading-wrap"><div class="spinner"></div></div></div>
+    </section>
+
+    <!-- PERFIL -->
+    <section class="seccion" id="sec-perfil">
+      <h2 class="sec-titulo">Mi perfil</h2>
+      <div class="card">
+        <div class="perfil-form">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" id="perfil-nombre-input" placeholder="Tu nombre">
+          </div>
+          <div class="form-group">
+            <label>Correo electrónico</label>
+            <input type="email" id="perfil-email-input" disabled style="opacity:.6;cursor:not-allowed">
+          </div>
+          <div>
+            <button class="btn-guardar" onclick="guardarPerfil()">Guardar cambios</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Loading inicial -->
+<div id="loading-inicial" style="display:flex;align-items:center;justify-content:center;min-height:80vh">
+  <div class="spinner"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://rwkkfumsuusmglwvsrrq.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_dY5jJk49qHdepDmzgTI0SA_LxxyqD23';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let usuarioActual = null;
+  let editandoDirId = null;
+
+  /* ── INIT ── */
+  (async () => {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session?.user) { window.location.href = 'login.html'; return; }
+    usuarioActual = session.user;
+
+    const nombre = session.user.user_metadata?.nombre || session.user.email.split('@')[0];
+    document.getElementById('avatar').textContent = nombre[0].toUpperCase();
+    document.getElementById('perfil-nombre').textContent = nombre;
+    document.getElementById('perfil-email').textContent = session.user.email;
+    document.getElementById('perfil-nombre-input').value = nombre;
+    document.getElementById('perfil-email-input').value = session.user.email;
+
+    document.getElementById('loading-inicial').style.display = 'none';
+    document.getElementById('cuenta-wrap').style.display = 'grid';
+
+    cargarPedidos();
+    cargarDirecciones();
+    cargarFavoritos();
+  })();
+
+  /* ── NAVEGACIÓN ── */
+  function mostrarSeccion(id, link) {
+    document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
+    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('activa');
+    if (link) link.classList.add('active');
+    return false;
+  }
+
+  /* ── PEDIDOS ── */
+  async function cargarPedidos() {
+    const { data, error } = await db.from('pedidos')
+      .select('*').order('created_at', { ascending: false });
+
+    const wrap = document.getElementById('pedidos-contenido');
+    if (error || !data?.length) {
+      wrap.innerHTML = `
+        <div class="vacio">
+          <div class="vacio-icon">
+            <svg width="28" height="28" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          </div>
+          <h4>Sin pedidos aún</h4>
+          <p>Cuando realices tu primera compra aparecerá aquí con todos los detalles.</p>
+        </div>`;
+      return;
+    }
+
+    const badges = {
+      pendiente:  '<span class="badge badge-pendiente">Pendiente</span>',
+      confirmado: '<span class="badge badge-confirmado">Confirmado</span>',
+      en_camino:  '<span class="badge badge-en_camino">En camino</span>',
+      entregado:  '<span class="badge badge-entregado">Entregado ✓</span>',
+    };
+
+    wrap.innerHTML = data.map(p => {
+      const items = Array.isArray(p.items) ? p.items : [];
+      const fecha = new Date(p.created_at).toLocaleDateString('es-CL', { day:'numeric', month:'long', year:'numeric' });
+      const badge = badges[p.estado] || badges.pendiente;
+
+      let trackingHtml = '';
+      if (p.estado === 'en_camino' && p.empresa_envio) {
+        trackingHtml = `
+          <div class="tracking-box">
+            <svg width="22" height="22" fill="none" stroke-width="1.5" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM18.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg>
+            <p><strong>${p.empresa_envio}</strong><br>
+            Código de seguimiento: <strong>${p.codigo_envio || '—'}</strong></p>
+          </div>`;
+      } else if (p.estado === 'entregado') {
+        trackingHtml = `
+          <div class="entregado-box">
+            <svg width="20" height="20" fill="none" stroke="#166534" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Tu pedido fue entregado el ${fecha}
+          </div>`;
+      }
+
+      const itemsHtml = items.map(i =>
+        `<div class="pedido-item"><span>${i.nombre} × ${i.cantidad}</span><strong>${i.precio}</strong></div>`
+      ).join('');
+
+      return `
+        <div class="card">
+          <div class="pedido-header">
+            <div class="pedido-num">
+              <div style="font-size:11px;color:var(--gray);margin-bottom:3px">${fecha}</div>
+              <strong>Pedido #${p.id.slice(-6).toUpperCase()}</strong>
+            </div>
+            ${badge}
+          </div>
+          <div class="pedido-items">
+            ${itemsHtml}
+            <div class="pedido-total"><span>Total</span><span>${p.total || '—'}</span></div>
+          </div>
+          ${trackingHtml}
+        </div>`;
+    }).join('');
+  }
+
+  /* ── DIRECCIONES ── */
+  async function cargarDirecciones() {
+    const { data } = await db.from('direcciones').select('*').order('es_principal', { ascending: false });
+    renderDirecciones(data || []);
+  }
+
+  function renderDirecciones(dirs) {
+    const wrap = document.getElementById('dirs-contenido');
+    if (!dirs.length) {
+      wrap.innerHTML = `
+        <div class="vacio">
+          <div class="vacio-icon">
+            <svg width="28" height="28" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <h4>Sin direcciones guardadas</h4>
+          <p>Agrega tu dirección para que el checkout sea más rápido.</p>
+        </div>`;
+      return;
+    }
+    wrap.innerHTML = `<div class="dir-grid">${dirs.map(d => `
+      <div class="dir-card ${d.es_principal ? 'principal' : ''}">
+        ${d.es_principal ? '<span class="dir-principal-badge">Principal</span>' : ''}
+        <p class="dir-nombre">${d.nombre_destinatario}</p>
+        <p class="dir-texto">
+          ${d.direccion}<br>
+          ${d.ciudad}, ${d.region}<br>
+          ${d.codigo_postal || ''} · ${d.telefono || ''}
+        </p>
+        <div class="dir-acciones">
+          <button class="btn-sm btn-sm-lila" onclick="editarDireccion('${d.id}')">Editar</button>
+          <button class="btn-sm btn-sm-danger" onclick="eliminarDireccion('${d.id}')">Eliminar</button>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+
+  function mostrarFormDir(limpiar = true) {
+    const form = document.getElementById('form-dir');
+    if (limpiar) {
+      editandoDirId = null;
+      document.getElementById('form-dir-titulo').textContent = 'Nueva dirección';
+      ['dir-nombre','dir-direccion','dir-ciudad','dir-region','dir-cp','dir-tel'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('dir-principal').checked = false;
+    }
+    form.classList.add('visible');
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function ocultarFormDir() {
+    document.getElementById('form-dir').classList.remove('visible');
+    editandoDirId = null;
+  }
+
+  async function editarDireccion(id) {
+    const { data } = await db.from('direcciones').select('*').eq('id', id).single();
+    if (!data) return;
+    editandoDirId = id;
+    document.getElementById('form-dir-titulo').textContent = 'Editar dirección';
+    document.getElementById('dir-nombre').value = data.nombre_destinatario || '';
+    document.getElementById('dir-direccion').value = data.direccion || '';
+    document.getElementById('dir-ciudad').value = data.ciudad || '';
+    document.getElementById('dir-region').value = data.region || '';
+    document.getElementById('dir-cp').value = data.codigo_postal || '';
+    document.getElementById('dir-tel').value = data.telefono || '';
+    document.getElementById('dir-principal').checked = data.es_principal || false;
+    mostrarFormDir(false);
+  }
+
+  async function guardarDireccion() {
+    const payload = {
+      user_id: usuarioActual.id,
+      nombre_destinatario: document.getElementById('dir-nombre').value.trim(),
+      direccion: document.getElementById('dir-direccion').value.trim(),
+      ciudad: document.getElementById('dir-ciudad').value.trim(),
+      region: document.getElementById('dir-region').value.trim(),
+      codigo_postal: document.getElementById('dir-cp').value.trim(),
+      telefono: document.getElementById('dir-tel').value.trim(),
+      es_principal: document.getElementById('dir-principal').checked,
+    };
+    if (!payload.nombre_destinatario || !payload.direccion) {
+      toast('Completa nombre y dirección'); return;
+    }
+    const btn = document.getElementById('btn-guardar-dir');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    let error;
+    if (editandoDirId) {
+      ({ error } = await db.from('direcciones').update(payload).eq('id', editandoDirId));
+    } else {
+      ({ error } = await db.from('direcciones').insert(payload));
+    }
+    btn.disabled = false; btn.textContent = 'Guardar';
+
+    if (error) { toast('Error al guardar: ' + error.message); return; }
+    toast('✓ Dirección guardada');
+    ocultarFormDir();
+    cargarDirecciones();
+  }
+
+  async function eliminarDireccion(id) {
+    if (!confirm('¿Eliminar esta dirección?')) return;
+    await db.from('direcciones').delete().eq('id', id);
+    toast('Dirección eliminada');
+    cargarDirecciones();
+  }
+
+  /* ── FAVORITOS ── */
+  async function cargarFavoritos() {
+    const { data } = await db.from('favoritos').select('*').order('created_at', { ascending: false });
+    const wrap = document.getElementById('favs-contenido');
+    if (!data?.length) {
+      wrap.innerHTML = `
+        <div class="vacio">
+          <div class="vacio-icon">
+            <svg width="28" height="28" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </div>
+          <h4>Sin favoritos aún</h4>
+          <p>Guardá las prendas que te gustan para encontrarlas fácil después.</p>
+        </div>`;
+      return;
+    }
+    wrap.innerHTML = `<div class="fav-grid">${data.map(f => `
+      <div class="fav-card">
+        <div class="fav-info">
+          <p class="fav-cat">${f.producto_categoria}</p>
+          <p class="fav-nombre">${f.producto_nombre}</p>
+          <p class="fav-precio">${f.producto_precio}</p>
+        </div>
+        <button class="btn-fav-remove" onclick="eliminarFavorito('${f.id}')" title="Quitar de favoritos">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>`).join('')}</div>`;
+  }
+
+  async function eliminarFavorito(id) {
+    await db.from('favoritos').delete().eq('id', id);
+    toast('Quitado de favoritos');
+    cargarFavoritos();
+  }
+
+  /* ── PERFIL ── */
+  async function guardarPerfil() {
+    const nombre = document.getElementById('perfil-nombre-input').value.trim();
+    if (!nombre) { toast('Escribe tu nombre'); return; }
+    const { error } = await db.auth.updateUser({ data: { nombre } });
+    if (error) { toast('Error: ' + error.message); return; }
+    document.getElementById('perfil-nombre').textContent = nombre;
+    document.getElementById('avatar').textContent = nombre[0].toUpperCase();
+    toast('✓ Perfil actualizado');
+  }
+
+  /* ── LOGOUT ── */
+  async function doLogout() {
+    await db.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  /* ── TOAST ── */
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>

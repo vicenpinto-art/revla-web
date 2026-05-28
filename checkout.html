@@ -470,6 +470,7 @@
       if (!urlPago) throw new Error('No se recibió URL de pago');
 
       localStorage.removeItem('revla-carrito');
+      await guardarPedidoSupabase(datosComprador);
       window.location.href = urlPago;
 
     } catch (err) {
@@ -481,6 +482,55 @@
   }
 
   renderItems();
+
+  /* ── Guardar pedido en Supabase (si hay sesión) ── */
+  var _db = null;
+  (function initSupabase() {
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    script.onload = function () {
+      _db = supabase.createClient(
+        'https://rwkkfumsuusmglwvsrrq.supabase.co',
+        'sb_publishable_dY5jJk49qHdepDmzgTI0SA_LxxyqD23'
+      );
+    };
+    document.head.appendChild(script);
+  })();
+
+  async function guardarPedidoSupabase(datosComprador) {
+    if (!_db) return;
+    try {
+      var { data: { session } } = await _db.auth.getSession();
+      if (!session?.user) return; // solo guarda si está logueada
+
+      var total = carrito.reduce(function(s, i) {
+        return s + (parseInt(i.precio.replace(/\D/g,'')) || 0) * i.cantidad;
+      }, 0);
+      if (costoEnvio > 0) total += costoEnvio;
+
+      var { data: pedido } = await _db.from('pedidos').insert({
+        user_id: session.user.id,
+        items: carrito,
+        total: '$' + total.toLocaleString('es-CL'),
+        estado: 'pendiente',
+        direccion: {
+          nombre: datosComprador.nombre + ' ' + datosComprador.apellido,
+          direccion: datosComprador.direccion,
+          ciudad: datosComprador.ciudad,
+          region: datosComprador.region,
+          tipo: datosComprador.tipoEnvio
+        }
+      }).select().single();
+
+      if (pedido?.id) {
+        // Guardar ID para actualizar estado en pago-resultado
+        localStorage.setItem('revla-ultimo-pedido', pedido.id);
+      }
+    } catch(e) {
+      console.warn('No se pudo guardar en Supabase:', e);
+      // No interrumpe el flujo de pago
+    }
+  }
 </script>
 </body>
 </html>
