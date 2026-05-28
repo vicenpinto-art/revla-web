@@ -479,31 +479,8 @@
   </div>
 </div>
 
-<!-- NAV -->
-<nav id="main-nav">
-  <a href="../index.html" class="nav-logo">rev<em>la</em></a>
-  <ul id="nav-menu">
-    <li><a href="../index.html">Inicio</a></li>
-    <li><a href="../colecciones.html">Colecciones</a></li>
-    <li><a href="../sobre.html">Sobre Revla</a></li>
-    <li><a href="../contacto.html">Contacto</a></li>
-    <li><a href="../login.html" class="nav-cta">Mi cuenta</a></li>
-  </ul>
-  <div style="display:flex;align-items:center;gap:12px;">
-    <button class="nav-cart-btn" onclick="abrirCarrito()">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-      Carrito
-      <span class="cart-count" id="cart-count">0</span>
-    </button>
-    <div class="nav-mobile-bar">
-      <button class="nav-cart-btn" onclick="abrirCarrito()" style="padding:8px 12px;">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <span class="cart-count" id="cart-count-mobile">0</span>
-      </button>
-      <button class="nav-menu-btn" onclick="document.getElementById('nav-menu').classList.toggle('nav-open')">☰</button>
-    </div>
-  </div>
-</nav>
+<div id="nav-root" data-base="../"></div>
+<script src="../nav.js"></script>
 
 <!-- BREADCRUMB -->
 <div class="breadcrumb">
