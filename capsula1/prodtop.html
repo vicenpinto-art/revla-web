@@ -381,10 +381,9 @@
     .rel-img {
       border-radius: 16px; overflow: hidden; aspect-ratio: 3/4;
       background: var(--nude); margin-bottom: 14px;
-      border: 2px dashed var(--lila-pale);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 8px; transition: transform .4s;
+      transition: transform .4s;
     }
+    .rel-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .rel-card:hover .rel-img { transform: scale(1.02); }
     .rel-img .ph-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--lila-pale); display: flex; align-items: center; justify-content: center; }
     .rel-img p { font-size: 12px; color: var(--gray); font-style: italic; }
@@ -666,8 +665,7 @@
     <div class="rel-grid">
       <a href="../capsula1/prodlarg.html" class="rel-card">
         <div class="rel-img">
-          <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
-          <p>../imagen/capsula1/capsula1a/prod-01-a.jpg</p>
+          <img src="../imagen/capsula1/capsula1d/prod-04-a.jpg" alt="El convertible" style="width:100%;height:100%;object-fit:cover;pointer-events:none;">
         </div>
         <p class="rel-sub">Short · Calza</p>
         <h3 class="rel-name">El convertible</h3>
@@ -675,8 +673,7 @@
       </a>
       <a href="../capsula1/prodshort.html" class="rel-card">
         <div class="rel-img">
-          <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
-          <p>../imagen/capsula1/capsula1a/prod-01-a.jpg</p>
+          <img src="../imagen/capsula1/capsula1a/prod-01-a.jpg" alt="La amarre" style="width:100%;height:100%;object-fit:cover;pointer-events:none;">
         </div>
         <p class="rel-sub">Calza</p>
         <h3 class="rel-name">La amarre</h3>
@@ -684,8 +681,7 @@
       </a>
       <a href="../capsula1/prodpant.html" class="rel-card">
         <div class="rel-img">
-          <div class="ph-icon"><svg width="22" height="22" fill="none" stroke="var(--lila)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/></svg></div>
-          <p>../imagen/capsula1/capsula1a/prod-01-a.jpg</p>
+          <img src="../imagen/capsula1/capsula1c/prod-03-a.jpg" alt="Por definir" style="width:100%;height:100%;object-fit:cover;pointer-events:none;">
         </div>
         <p class="rel-sub">Próximamente</p>
         <h3 class="rel-name">Por definir</h3>
